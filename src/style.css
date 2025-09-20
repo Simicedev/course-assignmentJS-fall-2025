@@ -1,0 +1,245 @@
+/* Modern minimal theme with light/dark support */
+:root {
+  --bg: #0b0e14;
+  --panel: #131722;
+  --panel-2: #1a1f2e;
+  --text: #e6eaf2;
+  --muted: #a9b1c3;
+  --primary: #4f8cff;
+  --primary-600: #3b78ee;
+  --danger: #ff5c7c;
+  --success: #3ddc97;
+  --warning: #ffcc66;
+  --border: #2a3042;
+  --shadow: 0 6px 24px rgba(0, 0, 0, 0.25), 0 2px 8px rgba(0, 0, 0, 0.2);
+  --radius: 12px;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: #f7f8fb;
+    --panel: #ffffff;
+    --panel-2: #f1f3f9;
+    --text: #1d2433;
+    --muted: #5a6477;
+    --primary: #2d6cff;
+    --primary-600: #1f58e6;
+    --danger: #e5484d;
+    --success: #10b981;
+    --warning: #f59e0b;
+    --border: #e6eaf2;
+    --shadow: 0 8px 30px rgba(0, 0, 0, 0.06), 0 2px 8px rgba(0, 0, 0, 0.05);
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+html,
+body {
+  height: 100%;
+}
+body {
+  margin: 0;
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu,
+    Cantarell, Noto Sans, "Helvetica Neue", Arial, "Apple Color Emoji",
+    "Segoe UI Emoji";
+  background: radial-gradient(
+      1200px 600px at 0% -10%,
+      rgba(79, 140, 255, 0.2),
+      transparent 50%
+    ),
+    radial-gradient(
+      1000px 500px at 100% 110%,
+      rgba(61, 220, 151, 0.15),
+      transparent 50%
+    ),
+    var(--bg);
+  color: var(--text);
+  line-height: 1.55;
+}
+
+/* Layout */
+#js-primary-nav {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  backdrop-filter: saturate(180%) blur(10px);
+  background: color-mix(in oklab, var(--panel), transparent 20%);
+  border-bottom: 1px solid var(--border);
+}
+
+nav#js-primary-nav a {
+  color: var(--text);
+  text-decoration: none;
+  padding: 10px 14px;
+  border-radius: 8px;
+  transition: background 160ms ease, color 160ms ease;
+}
+nav#js-primary-nav a:hover {
+  background: color-mix(in oklab, var(--primary), transparent 82%);
+}
+
+main#app-content {
+  max-width: 1000px;
+  margin: 24px auto;
+  padding: 0 16px;
+}
+
+h1,
+h2,
+h3 {
+  line-height: 1.2;
+  margin: 0.6em 0;
+}
+p {
+  color: var(--muted);
+}
+
+/* Cards & panels */
+.card,
+.profile-card,
+.profile-detail,
+.post-card {
+  background: linear-gradient(
+    180deg,
+    color-mix(in oklab, var(--panel), transparent 10%),
+    var(--panel)
+  );
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 14px 16px;
+}
+
+.profiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 14px;
+}
+
+/* Buttons */
+button,
+.btn {
+  appearance: none;
+  border: 1px solid color-mix(in oklab, var(--primary), black 10%);
+  background: linear-gradient(
+    180deg,
+    color-mix(in oklab, var(--primary), transparent 60%),
+    color-mix(in oklab, var(--primary), transparent 75%)
+  );
+  color: white;
+  padding: 8px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: transform 80ms ease, filter 160ms ease, background 160ms ease;
+}
+button:hover {
+  filter: brightness(1.05);
+}
+button:active {
+  transform: translateY(1px) scale(0.99);
+}
+
+.btn-secondary {
+  border-color: var(--border);
+  background: var(--panel-2);
+  color: var(--text);
+}
+.btn-danger {
+  border-color: color-mix(in oklab, var(--danger), black 10%);
+  background: color-mix(in oklab, var(--danger), transparent 20%);
+}
+.btn-success {
+  border-color: color-mix(in oklab, var(--success), black 10%);
+  background: color-mix(in oklab, var(--success), transparent 20%);
+}
+
+/* Forms */
+form {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  box-shadow: var(--shadow);
+}
+label {
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+input,
+textarea,
+select {
+  width: 100%;
+  background: var(--panel-2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  outline: none;
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+  margin: 6px 0 12px 0;
+}
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: color-mix(in oklab, var(--primary), white 20%);
+  box-shadow: 0 0 0 4px color-mix(in oklab, var(--primary), transparent 85%);
+}
+
+/* Utilities */
+.row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+.grid {
+  display: grid;
+  gap: 14px;
+}
+.muted {
+  color: var(--muted);
+}
+.spacer {
+  height: 16px;
+}
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Post list tweaks (matches posts.ts structure) */
+.post-card img {
+  max-width: 100%;
+  border-radius: 10px;
+  display: block;
+}
+.post-card header {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+/* Profile detail header */
+.profile-detail header {
+  margin-bottom: 10px;
+}
+.profile-detail header img[alt="banner"] {
+  border-radius: 12px;
+}
+
+/* Links */
+a {
+  color: var(--primary);
+}
+a:hover {
+  color: var(--primary-600);
+}

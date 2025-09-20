@@ -1,0 +1,29 @@
+{
+  "name": "testing-dom-behaviour",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+  "start": "tsx server.ts",
+  "start:3000": "cross-env PORT=3000 tsx server.ts",
+  "start:3001": "cross-env PORT=3001 tsx server.ts",
+    "start:cjs": "node server.cjs",
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+  "cross-env": "^7.0.3",
+    "tsx": "^4.19.0",
+    "typescript": "~5.8.3",
+    "vite": "^7.1.2"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "socket.io": "^4.8.1",
+    "socket.io-client": "^4.8.1",
+    "ws": "^8.18.3"
+  }
+}
