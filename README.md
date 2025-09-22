@@ -1,4 +1,4 @@
-# Testing DOM Behaviour
+# Course Assignment Fall 2025 
 
 A Vite + TypeScript client with an Express + Socket.IO server for a coursework assignment (Fall 2025).
 
