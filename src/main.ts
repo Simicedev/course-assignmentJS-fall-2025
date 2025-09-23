@@ -41,11 +41,6 @@ function renderNav() {
       <a href="/profiles" data-link>Profiles</a>
       ${
         loggedIn
-          ? `<a href="/profile" data-link>My profile</a>`
-          : ""
-      }
-      ${
-        loggedIn
           ? `<span style=\"margin-left:auto\" class=\"muted\">Logged in as ${
               name ?? "User"
             }</span>
