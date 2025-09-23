@@ -7,12 +7,29 @@ import {
   type PostModel,
 } from "../services/postsApi";
 import { on as onSocket, emit as emitSocket } from "../realtime/socket";
+import { isAuthenticated } from "../storage/authentication";
 
 const outletId = "app-content";
 
 export async function renderPosts() {
   const root = document.getElementById(outletId);
   if (!root) return;
+  if (!isAuthenticated()) {
+    root.innerHTML = `
+      <section>
+        <h1>Posts</h1>
+        <p class="muted">You must be logged in to view and create posts.</p>
+        <p><a href="/login" data-link>Go to Login</a> or <a href="/register" data-link>Create an account</a>.</p>
+      </section>
+    `;
+    // Re-render posts automatically when auth state changes
+    const onAuth = async () => {
+      window.removeEventListener("auth:changed", onAuth);
+      await renderPosts();
+    };
+    window.addEventListener("auth:changed", onAuth);
+    return;
+  }
   root.innerHTML = `<p>Loading posts…</p>`;
 
   const header = document.createElement("div");
@@ -40,14 +57,20 @@ export async function renderPosts() {
       item.style.border = "1px solid #ddd";
       item.style.padding = "8px";
       item.style.margin = "8px 0";
+      const mediaSrc =
+        typeof post.media === "string" ? post.media : (post.media as any)?.url;
+      const mediaAlt =
+        typeof post.media === "object" && post.media
+          ? (post.media as any).alt || "media"
+          : "media";
       item.innerHTML = `
         <h3>${post.title} <small>#${post.id}</small></h3>
         ${
-          post.media
-            ? `<img src="${post.media}" alt="media" style="max-width:200px">`
+          mediaSrc
+            ? `<img src="${mediaSrc}" alt="${mediaAlt}" style="max-width:200px">`
             : ""
         }
-        ${post.body ? `<p>${post.body}</p>` : ""}
+  ${post.body ? `<p>${post.body}</p>` : ""}
         <p><small>Comments: ${post._count?.comments ?? 0} · Reactions: ${
         post._count?.reactions ?? 0
       }</small></p>
@@ -112,7 +135,8 @@ export async function renderPosts() {
     event.preventDefault();
     const formData = new FormData(newPost);
     const title = String(formData.get("title") || "");
-    const media = String(formData.get("media") || "").trim() || undefined;
+    const mediaUrl = String(formData.get("media") || "").trim();
+    const media = mediaUrl ? { url: mediaUrl, alt: "Post media" } : undefined;
     const tagsStr = String(formData.get("tags") || "").trim();
     const tags = tagsStr
       ? tagsStr.split(",").map((tag) => tag.trim())

@@ -9,10 +9,7 @@ import {
   deletePost,
   type PostModel,
 } from "../services/postsApi";
-import {
-  isAuthenticated,
-  getUserName,
-} from "../storage/authentication";
+import { isAuthenticated, getUserName } from "../storage/authentication";
 
 const outletId = "app-content";
 
@@ -44,22 +41,25 @@ export async function renderMyProfile() {
       getProfile(username!, { posts: false, followers: true, following: true }),
       getProfilePosts(username!, { limit: 50, page: 1 }),
     ]);
-
-    const posts: PostModel[] = Array.isArray(postsResult.data)
-      ? (postsResult.data as any)
-      : (Array.isArray(postsResult as any) ? (postsResult as any) : []);
+    const posts: PostModel[] = Array.isArray(postsResult)
+      ? (postsResult as any)
+      : [];
 
     const container = h("section", { className: "my-profile" });
     container.innerHTML = `
       <header style="display:flex;flex-direction:column;gap:12px;">
         <div>
           <img src="${
-            profile.banner || "https://placehold.co/800x160"
+            (profile as any).banner?.url ||
+            (profile as any).banner ||
+            "https://placehold.co/800x160"
           }" alt="banner" style="width:100%;max-height:160px;object-fit:cover"/>
         </div>
         <div style="display:flex;align-items:center;gap:16px;margin-top:-40px;">
           <img src="${
-            profile.avatar || "https://placehold.co/96x96"
+            (profile as any).avatar?.url ||
+            (profile as any).avatar ||
+            "https://placehold.co/96x96"
           }" alt="avatar" width="96" height="96" style="border-radius:50%;border:3px solid #fff;background:#fff"/>
           <div>
             <h1 style="margin:0;">${profile.name}</h1>
@@ -107,7 +107,15 @@ export async function renderMyProfile() {
           <h3 style="margin-top:0">${post.title} <small>#${post.id}</small></h3>
           ${
             post.media
-              ? `<img src="${post.media}" alt="media" style="max-width:240px;display:block;margin:4px 0">`
+              ? `<img src="${
+                  typeof post.media === "string"
+                    ? post.media
+                    : (post.media as any)?.url
+                }" alt="${
+                  typeof post.media === "object"
+                    ? (post.media as any)?.alt || "media"
+                    : "media"
+                }" style="max-width:240px;display:block;margin:4px 0">`
               : ""
           }
           ${post.body ? `<p>${post.body}</p>` : ""}
@@ -135,14 +143,14 @@ export async function renderMyProfile() {
       await createPost({
         title,
         body,
-        media: mediaRaw || undefined,
+        media: mediaRaw ? { url: mediaRaw, alt: "Post media" } : undefined,
         tags: tagsRaw ? tagsRaw.split(",").map((t) => t.trim()) : undefined,
       });
       createForm.reset();
       // Refresh posts from server after creation
       const updated = await getProfilePosts(username!, { limit: 50, page: 1 });
-      const updatedList: PostModel[] = Array.isArray(updated.data)
-        ? (updated.data as any)
+      const updatedList: PostModel[] = Array.isArray(updated)
+        ? (updated as any)
         : [];
       renderPostsList(updatedList);
     });
@@ -150,18 +158,21 @@ export async function renderMyProfile() {
     // Event delegation for edit/delete
     listEl.addEventListener("click", async (e) => {
       const target = e.target as HTMLElement;
-      const btn = target.closest("button[data-action]") as
-        | HTMLButtonElement
-        | null;
+      const btn = target.closest(
+        "button[data-action]"
+      ) as HTMLButtonElement | null;
       if (!btn) return;
       const action = btn.dataset.action!;
       const id = Number(btn.dataset.id);
       if (action === "delete") {
         if (!confirm("Delete this post?")) return;
         await deletePost(id);
-        const updated = await getProfilePosts(username!, { limit: 50, page: 1 });
-        const updatedList: PostModel[] = Array.isArray(updated.data)
-          ? (updated.data as any)
+        const updated = await getProfilePosts(username!, {
+          limit: 50,
+          page: 1,
+        });
+        const updatedList: PostModel[] = Array.isArray(updated)
+          ? (updated as any)
           : [];
         renderPostsList(updatedList);
       } else if (action === "edit") {
@@ -169,13 +180,16 @@ export async function renderMyProfile() {
           `article[data-post-id="${id}"]`
         );
         if (!article) return;
-        const originalTitle = article.querySelector("h3")?.childNodes[0]
-          .textContent?.trim() || "";
+        const originalTitle =
+          article.querySelector("h3")?.childNodes[0].textContent?.trim() || "";
         const originalBody = article.querySelector("p")?.textContent || "";
         // Basic inline edit form
         article.innerHTML = `
           <form data-edit-form style="display:flex;flex-direction:column;gap:6px;">
-            <input name="title" value="${originalTitle.replace(/"/g, "&quot;")}" required />
+            <input name="title" value="${originalTitle.replace(
+              /"/g,
+              "&quot;"
+            )}" required />
             <textarea name="body">${originalBody.replace(
               /</g,
               "&lt;"
@@ -191,33 +205,32 @@ export async function renderMyProfile() {
         )!;
         form.addEventListener("submit", async (ev) => {
           ev.preventDefault();
-            const fd = new FormData(form);
-            const title = String(fd.get("title") || "").trim();
-            const body = String(fd.get("body") || "");
-            if (!title) return;
-            await updatePost(id, { title, body });
-            const refreshed = await getProfilePosts(username!, {
-              limit: 50,
-              page: 1,
-            });
-            const refreshedList: PostModel[] = Array.isArray(refreshed.data)
-              ? (refreshed.data as any)
-              : [];
-            renderPostsList(refreshedList);
+          const fd = new FormData(form);
+          const title = String(fd.get("title") || "").trim();
+          const body = String(fd.get("body") || "");
+          if (!title) return;
+          await updatePost(id, { title, body });
+          const refreshed = await getProfilePosts(username!, {
+            limit: 50,
+            page: 1,
+          });
+          const refreshedList: PostModel[] = Array.isArray(refreshed)
+            ? (refreshed as any)
+            : [];
+          renderPostsList(refreshedList);
         });
-        form.querySelector<HTMLButtonElement>("button[data-cancel]")?.addEventListener(
-          "click",
-          async () => {
+        form
+          .querySelector<HTMLButtonElement>("button[data-cancel]")
+          ?.addEventListener("click", async () => {
             const refreshed = await getProfilePosts(username!, {
               limit: 50,
               page: 1,
             });
-            const refreshedList: PostModel[] = Array.isArray(refreshed.data)
-              ? (refreshed.data as any)
+            const refreshedList: PostModel[] = Array.isArray(refreshed)
+              ? (refreshed as any)
               : [];
             renderPostsList(refreshedList);
-          }
-        );
+          });
       }
     });
   } catch (err: any) {
