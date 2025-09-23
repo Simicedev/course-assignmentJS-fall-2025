@@ -3,6 +3,7 @@ import { renderProfilesList, renderProfileDetail } from "./pages/profile";
 import { renderLogin } from "./pages/login";
 import { renderRegister } from "./pages/register";
 import { renderPosts } from "./pages/posts";
+import { renderMyProfile } from "./pages/myProfile";
 import {
   isAuthenticated,
   getUserName,
@@ -38,16 +39,20 @@ function renderNav() {
     nav.innerHTML = `
       <a href="/" data-link>Home</a>
       <a href="/profiles" data-link>Profiles</a>
-      <a href="/posts" data-link>Posts</a>
       ${
         loggedIn
-          ? `<span style="margin-left:auto" class="muted">Logged in as ${
+          ? `<a href="/profile" data-link>My profile</a>`
+          : ""
+      }
+      ${
+        loggedIn
+          ? `<span style=\"margin-left:auto\" class=\"muted\">Logged in as ${
               name ?? "User"
             }</span>
-           <button id="logout-btn" class="btn btn-secondary" style="margin-left:8px">Logout</button>`
-          : `<span style="margin-left:auto"></span>
-           <a href="/login" data-link>Login</a>
-           <a href="/register" data-link>Register</a>`
+           <button id=\"logout-btn\" class=\"btn btn-secondary\" style=\"margin-left:8px\">Logout</button>`
+          : `<span style=\"margin-left:auto\"></span>
+           <a href=\"/login\" data-link>Login</a>
+           <a href=\"/register\" data-link>Register</a>`
       }
     `;
 
@@ -73,17 +78,7 @@ const routes: Route[] = [
     path: "/",
     view: () => {
       renderNav();
-      const outlet = document.getElementById("app-content");
-      if (outlet) {
-        outlet.innerHTML = `
-          <h1>Home</h1>
-          <nav style="display:flex; gap:8px; flex-wrap:wrap">
-            <a href="/profiles" data-link>Profiles</a>
-            <a href="/posts" data-link>Posts</a>
-            <a href="/login" data-link>Login</a>
-            <a href="/register" data-link>Register</a>
-          </nav>`;
-      }
+      renderPosts();
     },
   },
   {
@@ -115,10 +110,10 @@ const routes: Route[] = [
     },
   },
   {
-    path: "/posts",
+    path: "/profile",
     view: () => {
       renderNav();
-      renderPosts();
+      renderMyProfile();
     },
   },
 ];
