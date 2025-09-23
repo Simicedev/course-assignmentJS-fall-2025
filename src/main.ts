@@ -3,7 +3,7 @@ import { renderProfilesList, renderProfileDetail } from "./pages/profile";
 import { renderLogin } from "./pages/login";
 import { renderRegister } from "./pages/register";
 import { renderPosts } from "./pages/posts";
-import { renderMyProfile } from "./pages/myProfile";
+
 import {
   isAuthenticated,
   getUserName,
@@ -41,11 +41,6 @@ function renderNav() {
       <a href="/profiles" data-link>Profiles</a>
       ${
         loggedIn
-          ? `<a href="/profile" data-link>My profile</a>`
-          : ""
-      }
-      ${
-        loggedIn
           ? `<span style=\"margin-left:auto\" class=\"muted\">Logged in as ${
               name ?? "User"
             }</span>
@@ -78,6 +73,7 @@ const routes: Route[] = [
     path: "/",
     view: () => {
       renderNav();
+      // Root now shows the posts feed directly
       renderPosts();
     },
   },
@@ -107,13 +103,6 @@ const routes: Route[] = [
     view: () => {
       renderNav();
       renderRegister();
-    },
-  },
-  {
-    path: "/profile",
-    view: () => {
-      renderNav();
-      renderMyProfile();
     },
   },
 ];
