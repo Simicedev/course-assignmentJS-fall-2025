@@ -7,27 +7,32 @@ export type Route = {
 };
 
 function matchPath(
-  pattern: string,
-  pathname: string
+  routePattern: string,
+  currentPathname: string
 ): { matched: boolean; params: Params } {
-  if (pattern === pathname) return { matched: true, params: {} };
+  if (routePattern === currentPathname) return { matched: true, params: {} };
 
-  const patternSegments = pattern.split("/").filter(Boolean);
-  const pathSegments = pathname.split("/").filter(Boolean);
-  if (patternSegments.length !== pathSegments.length)
+  const patternSegments = routePattern.split("/").filter(Boolean);
+  const pathSegments = currentPathname.split("/").filter(Boolean);
+  if (patternSegments.length !== pathSegments.length) {
     return { matched: false, params: {} };
+  }
 
-  const params: Params = {};
-  for (let i = 0; i < patternSegments.length; i++) {
-    const patternPart = patternSegments[i];
-    const pathPart = pathSegments[i];
-    if (patternPart.startsWith(":")) {
-      params[patternPart.slice(1)] = decodeURIComponent(pathPart);
-    } else if (patternPart !== pathPart) {
+  const extractedParams: Params = {};
+  for (
+    let segmentIndex = 0;
+    segmentIndex < patternSegments.length;
+    segmentIndex++
+  ) {
+    const routeSegment = patternSegments[segmentIndex];
+    const pathSegment = pathSegments[segmentIndex];
+    if (routeSegment.startsWith(":")) {
+      extractedParams[routeSegment.slice(1)] = decodeURIComponent(pathSegment);
+    } else if (routeSegment !== pathSegment) {
       return { matched: false, params: {} };
     }
   }
-  return { matched: true, params };
+  return { matched: true, params: extractedParams };
 }
 
 export class Router {
@@ -40,17 +45,20 @@ export class Router {
 
     window.addEventListener("popstate", () => this.resolve());
     // Global link hijack
-    document.addEventListener("click", (e) => {
-      const target = e.target as HTMLElement | null;
-      if (!target) return;
-      const link = target.closest("a[href]") as HTMLAnchorElement | null;
-      if (!link) return;
-      const href = link.getAttribute("href");
-      if (!href) return;
-      const isInternal = href.startsWith("/") && !link.target;
-      if (!isInternal) return;
-      e.preventDefault();
-      this.navigate(href);
+    document.addEventListener("click", (clickEvent) => {
+      const eventTarget = clickEvent.target as HTMLElement | null;
+      if (!eventTarget) return;
+      const anchorElement = eventTarget.closest(
+        "a[href]"
+      ) as HTMLAnchorElement | null;
+      if (!anchorElement) return;
+      const hrefAttribute = anchorElement.getAttribute("href");
+      if (!hrefAttribute) return;
+      const isInternalNavigation =
+        hrefAttribute.startsWith("/") && !anchorElement.target;
+      if (!isInternalNavigation) return;
+      clickEvent.preventDefault();
+      this.navigate(hrefAttribute);
     });
   }
 
@@ -60,11 +68,14 @@ export class Router {
   }
 
   resolve() {
-    const pathname = window.location.pathname;
-    for (const route of this.routes) {
-      const { matched, params } = matchPath(route.path, pathname);
+    const currentPathname = window.location.pathname;
+    for (const registeredRoute of this.routes) {
+      const { matched, params } = matchPath(
+        registeredRoute.path,
+        currentPathname
+      );
       if (matched) {
-        route.view(params);
+        registeredRoute.view(params);
         return;
       }
     }
