@@ -1,3 +1,5 @@
+@import "./singlePost.css";
+
 /* Modern minimal theme with light/dark support */
 :root {
   --bg: #0b0e14;
@@ -93,7 +95,7 @@ h3 {
   margin: 0.6em 0;
 }
 p {
-  color: var(--muted);
+  color: var(--text);
 }
 
 /* Cards & panels */

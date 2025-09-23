@@ -22,7 +22,7 @@ export async function renderPosts() {
         <p><a href="/login" data-link>Go to Login</a> or <a href="/register" data-link>Create an account</a>.</p>
       </section>
     `;
-    // Re-render posts automatically when auth state changes
+
     const onAuth = async () => {
       window.removeEventListener("auth:changed", onAuth);
       await renderPosts();
@@ -57,6 +57,7 @@ export async function renderPosts() {
       item.style.border = "1px solid #ddd";
       item.style.padding = "8px";
       item.style.margin = "8px 0";
+      item.style.cursor = "pointer";
       const mediaSrc =
         typeof post.media === "string" ? post.media : (post.media as any)?.url;
       const mediaAlt =
@@ -64,7 +65,9 @@ export async function renderPosts() {
           ? (post.media as any).alt || "media"
           : "media";
       item.innerHTML = `
-        <h3>${post.title} <small>#${post.id}</small></h3>
+        <h3><a href="/posts/${post.id}" data-link>${post.title}</a> <small>#${
+        post.id
+      }</small></h3>
         ${
           mediaSrc
             ? `<img src="${mediaSrc}" alt="${mediaAlt}" style="max-width:200px">`
@@ -84,6 +87,14 @@ export async function renderPosts() {
         </div>
       `;
       list.append(item);
+
+      item.addEventListener("click", (ev) => {
+        const target = ev.target as HTMLElement;
+        if (target.closest("button, form, input, textarea, a")) return;
+        const href = `/posts/${post.id}`;
+        history.pushState({ path: href }, "", href);
+        window.dispatchEvent(new PopStateEvent("popstate"));
+      });
     });
 
     // wire reactions
@@ -98,7 +109,6 @@ export async function renderPosts() {
         });
       });
 
-    // wire delete
     list
       .querySelectorAll<HTMLButtonElement>("button[data-delete]")
       .forEach((buttonEl) => {
@@ -111,7 +121,6 @@ export async function renderPosts() {
         });
       });
 
-    // wire comments
     list
       .querySelectorAll<HTMLFormElement>("form[data-comment]")
       .forEach((commentForm) => {
