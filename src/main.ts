@@ -3,7 +3,6 @@ import { renderProfilesList, renderProfileDetail } from "./pages/profile";
 import { renderLogin } from "./pages/login";
 import { renderRegister } from "./pages/register";
 import { renderPosts } from "./pages/posts";
-import { renderMyProfile } from "./pages/myProfile";
 import {
   isAuthenticated,
   getUserName,
