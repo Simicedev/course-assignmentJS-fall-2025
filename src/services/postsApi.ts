@@ -5,17 +5,20 @@ export type PostModel = {
   title: string;
   body?: string;
   tags?: string[];
-  media?: string | null;
+  // In V2, media is often an object; keep flexible
+  media?: { url: string; alt?: string } | string | null;
   created?: string;
   updated?: string;
   _count?: { comments?: number; reactions?: number };
   [key: string]: any;
 };
 
-export type CreatePostBody = Pick<
-  PostModel,
-  "title" | "body" | "tags" | "media"
->;
+export type CreatePostBody = {
+  title: string;
+  body?: string;
+  tags?: string[];
+  media?: { url: string; alt?: string };
+};
 export type UpdatePostBody = Partial<CreatePostBody>;
 
 type Include = { author?: boolean; comments?: boolean; reactions?: boolean };
@@ -28,7 +31,10 @@ function buildPostInclude({ author, comments, reactions }: Include = {}) {
   return queryParts.length ? `&${queryParts.join("&")}` : "";
 }
 
-export function listPosts(params?: {
+type PagedResponse<T> = { data: T[]; meta?: any };
+type SingleResponse<T> = { data: T; meta?: any };
+
+export async function listPosts(params?: {
   page?: number;
   limit?: number;
   tag?: string;
@@ -38,17 +44,21 @@ export function listPosts(params?: {
   const page = params?.page ?? 1;
   const tag = params?.tag ? `&_tag=${encodeURIComponent(params.tag)}` : "";
   const includeQuery = buildPostInclude(params?.include);
-  return get<PostModel[]>(
+  const res = await get<PagedResponse<PostModel>>(
     `/social/posts?limit=${limit}&page=${page}${tag}${includeQuery}`
   );
+  return res?.data ?? ([] as PostModel[]);
 }
 
-export function getPost(id: number, include?: Include) {
+export async function getPost(id: number, include?: Include) {
   const includeQuery = buildPostInclude(include).replace(/^&/, "?");
-  return get<PostModel>(`/social/posts/${id}${includeQuery}`);
+  const res = await get<SingleResponse<PostModel>>(
+    `/social/posts/${id}${includeQuery}`
+  );
+  return res?.data as PostModel;
 }
 
-export function listFollowingPosts(params?: {
+export async function listFollowingPosts(params?: {
   page?: number;
   limit?: number;
   include?: Include;
@@ -56,17 +66,20 @@ export function listFollowingPosts(params?: {
   const limit = params?.limit ?? 20;
   const page = params?.page ?? 1;
   const includeQuery = buildPostInclude(params?.include);
-  return get<PostModel[]>(
+  const res = await get<PagedResponse<PostModel>>(
     `/social/posts/following?limit=${limit}&page=${page}${includeQuery}`
   );
+  return res?.data ?? ([] as PostModel[]);
 }
 
-export function createPost(body: CreatePostBody) {
-  return post<PostModel>(`/social/posts`, body);
+export async function createPost(body: CreatePostBody) {
+  const res = await post<SingleResponse<PostModel>>(`/social/posts`, body);
+  return res?.data as PostModel;
 }
 
-export function updatePost(id: number, body: UpdatePostBody) {
-  return put<PostModel>(`/social/posts/${id}`, body);
+export async function updatePost(id: number, body: UpdatePostBody) {
+  const res = await put<SingleResponse<PostModel>>(`/social/posts/${id}`, body);
+  return res?.data as PostModel;
 }
 
 export function deletePost(id: number) {

@@ -26,13 +26,18 @@ export function renderLogin() {
     msg && (msg.textContent = "Logging in…");
     try {
       const response = await loginUser({ email, password });
+      console.log("Login response:", response);
       setAuth({
-        accessToken: response.accessToken,
-        name: response.name,
-        email: response.email,
+        accessToken: response.data.accessToken,
+        name: response.data.name,
+        email: response.data.email,
       });
+      console.log(
+        "login.ts: accessToken now in LS?",
+        localStorage.getItem("accessToken")
+      );
       emitAuthChanged();
-      msg && (msg.textContent = `Logged in as ${response.name}`);
+      msg && (msg.textContent = `Logged in as ${response.data.name}`);
       // optional: redirect to home
       history.pushState({ path: "/" }, "", "/");
       window.dispatchEvent(new PopStateEvent("popstate"));
