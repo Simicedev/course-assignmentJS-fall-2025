@@ -1,8 +1,9 @@
-import "./style.css";
+import "./styles/style.css";
 import { renderProfilesList, renderProfileDetail } from "./pages/profile";
 import { renderLogin } from "./pages/login";
 import { renderRegister } from "./pages/register";
 import { renderPosts } from "./pages/posts";
+import { renderSinglePost } from "./pages/singlePost";
 
 import {
   isAuthenticated,
@@ -75,6 +76,13 @@ const routes: Route[] = [
       renderNav();
       // Root now shows the posts feed directly
       renderPosts();
+    },
+  },
+  {
+    path: "/posts/:id",
+    view: (params) => {
+      renderNav();
+      renderSinglePost(params?.id!);
     },
   },
   {
