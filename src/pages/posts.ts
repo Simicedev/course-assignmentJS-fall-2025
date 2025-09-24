@@ -3,7 +3,6 @@ import {
   createPost,
   reactToPost,
   commentOnPost,
-  deletePost,
   type PostModel,
 } from "../services/postsApi";
 import { on as onSocket, emit as emitSocket } from "../realtime/socket";
@@ -87,7 +86,7 @@ export async function renderPosts() {
           <form data-comment="${post.id}" style="display:inline-flex;gap:4px">
             <input name="body" placeholder="Comment"> <button>Add</button>
           </form>
-          <button data-delete="${post.id}">Delete</button>
+          
         </div>
       </div>
     `;
@@ -144,18 +143,7 @@ export async function renderPosts() {
         });
       });
 
-    list
-      .querySelectorAll<HTMLButtonElement>("button[data-delete]")
-      .forEach((buttonEl) => {
-        buttonEl.addEventListener("click", async () => {
-          const postId = Number(buttonEl.dataset.delete);
-          await deletePost(postId);
-          // Let server broadcast for other clients; locally we refresh immediately
-          emitSocket("post:deleted", { id: postId });
-          await refresh();
-        });
-      });
-
+   
     list
       .querySelectorAll<HTMLFormElement>("form[data-comment]")
       .forEach((commentForm) => {
@@ -195,12 +183,7 @@ export async function renderPosts() {
   });
 
   await refresh();
-
-  // Real-time updates: refresh when others create/delete
   onSocket("post:created", async () => {
-    await refresh();
-  });
-  onSocket("post:deleted", async () => {
     await refresh();
   });
 }
