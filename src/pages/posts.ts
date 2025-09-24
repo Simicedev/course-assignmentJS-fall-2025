@@ -8,6 +8,8 @@ import {
 } from "../services/postsApi";
 import { on as onSocket, emit as emitSocket } from "../realtime/socket";
 import { isAuthenticated } from "../storage/authentication";
+import { createHTML } from "../services/utils";
+import { getAuthor } from "./singlePost";
 
 const outletId = "app-content";
 
@@ -15,13 +17,15 @@ export async function renderPosts() {
   const root = document.getElementById(outletId);
   if (!root) return;
   if (!isAuthenticated()) {
-    root.innerHTML = `
+    const guestEl = createHTML(`
       <section>
         <h1>Posts</h1>
         <p class="muted">You must be logged in to view and create posts.</p>
         <p><a href="/login" data-link>Go to Login</a> or <a href="/register" data-link>Create an account</a>.</p>
       </section>
-    `;
+    `);
+    if (guestEl) root.replaceChildren(guestEl);
+    else root.textContent = "You must be logged in to view and create posts.";
 
     const onAuth = async () => {
       window.removeEventListener("auth:changed", onAuth);
@@ -30,62 +34,93 @@ export async function renderPosts() {
     window.addEventListener("auth:changed", onAuth);
     return;
   }
-  root.innerHTML = `<p>Loading posts…</p>`;
+  root.textContent = "Loading posts…";
 
-  const header = document.createElement("div");
-  header.innerHTML = `
-    <h1>Posts</h1>
-    <form id="new-post">
-      <input name="title" placeholder="Title" required>
-      <input name="media" placeholder="Image URL (optional)">
-      <input name="tags" placeholder="tags,comma,separated">
-      <textarea name="body" placeholder="Body"></textarea>
-      <button type="submit">Create</button>
-    </form>
-  `;
+  function normalizeMedia(media: any): { url: string; alt: string } | null {
+    if (!media) return null;
+    if (typeof media === "string") return { url: media, alt: "media" };
+    const url = media?.url ?? "";
+    if (!url) return null;
+    return { url, alt: media?.alt ?? "media" };
+  }
 
+  function postCardHtml(post: PostModel): string {
+    const media = normalizeMedia((post as any).media);
+    const comments = post._count?.comments ?? 0;
+    const reactions = post._count?.reactions ?? 0;
+    const { name, avatar } = getAuthor(post);
+    const avatarImg = avatar
+      ? `<img src="${avatar}" alt="${name}" class="c-singlePost-avatar-img"/>`
+      : "";
+    return `
+      <div class="c-posts-card" ">
+        <div>
+          <a href="/profiles/${encodeURIComponent(
+            name
+          )}" data-link>${avatarImg} ${name}</a>
+          <h3><a href="/posts/${post.id}" data-link>${post.title}</a>
+          <small>#${post.id}</small></h3>
+        </div>
+        <div class="c-posts-media">
+        ${
+          media
+            ? `<img src="${media.url}" alt="${media.alt}" class="c-posts-img"/>`
+            : ""
+        }
+        </div>
+        <div class="c-posts-body">
+        ${post.body ? `<p>${post.body}</p>` : ""}
+        </div>
+
+        <div class="c-posts-meta">
+          <div>
+            <p> <small>Reactions: ${reactions}</small></p>
+            <p class="c-posts-meta-info"><small>Comments: ${comments} </small></p>
+          </div>
+          <div class="c-posts-reactions">
+            <button data-react="👍" data-id="${post.id}">👍</button>
+            <button data-react="❤️" data-id="${post.id}">❤️</button>
+          </div>
+        </div>
+        <div class="c-posts-actions">
+          
+          <form data-comment="${post.id}" style="display:inline-flex;gap:4px">
+            <input name="body" placeholder="Comment"> <button>Add</button>
+          </form>
+          <button data-delete="${post.id}">Delete</button>
+        </div>
+      </div>
+    `;
+  }
+
+  function headerHtml(): string {
+    return `
+      <section>
+        <h1>Posts</h1>
+        <form id="new-post">
+          <input name="title" placeholder="Title" required>
+          <input name="media" placeholder="Image URL (optional)">
+          <input name="tags" placeholder="tags,comma,separated">
+          <textarea name="body" placeholder="Body"></textarea>
+          <button type="submit">Create</button>
+        </form>
+      </section>
+    `;
+  }
+
+  const header = createHTML(headerHtml()) as HTMLElement | null;
   const list = document.createElement("div");
+  list.className = "c-posts-container";
 
   async function refresh() {
     const posts = await listPosts({
       limit: 10,
       include: { author: true, comments: true, reactions: true },
     });
-    list.innerHTML = "";
+    list.replaceChildren();
     posts.forEach((post: PostModel) => {
-      const item = document.createElement("article");
-      item.style.border = "1px solid #ddd";
-      item.style.padding = "8px";
-      item.style.margin = "8px 0";
-      item.style.cursor = "pointer";
-      const mediaSrc =
-        typeof post.media === "string" ? post.media : (post.media as any)?.url;
-      const mediaAlt =
-        typeof post.media === "object" && post.media
-          ? (post.media as any).alt || "media"
-          : "media";
-      item.innerHTML = `
-        <h3><a href="/posts/${post.id}" data-link>${post.title}</a> <small>#${
-        post.id
-      }</small></h3>
-        ${
-          mediaSrc
-            ? `<img src="${mediaSrc}" alt="${mediaAlt}" style="max-width:200px">`
-            : ""
-        }
-  ${post.body ? `<p>${post.body}</p>` : ""}
-        <p><small>Comments: ${post._count?.comments ?? 0} · Reactions: ${
-        post._count?.reactions ?? 0
-      }</small></p>
-        <div style="display:flex;gap:6px;align-items:center">
-          <button data-react="👍" data-id="${post.id}">👍</button>
-          <button data-react="❤️" data-id="${post.id}">❤️</button>
-          <form data-comment="${post.id}" style="display:inline-flex;gap:4px">
-            <input name="body" placeholder="Comment"> <button>Add</button>
-          </form>
-          <button data-delete="${post.id}">Delete</button>
-        </div>
-      `;
+      const item = createHTML(postCardHtml(post)) as HTMLElement | null;
+      if (!item) return;
       list.append(item);
 
       item.addEventListener("click", (ev) => {
@@ -136,10 +171,11 @@ export async function renderPosts() {
       });
   }
 
-  root.innerHTML = "";
-  root.append(header, list);
+  root.replaceChildren();
+  if (header) root.append(header);
+  root.append(list);
 
-  const newPost = header.querySelector("#new-post") as HTMLFormElement | null;
+  const newPost = header?.querySelector("#new-post") as HTMLFormElement | null;
   newPost?.addEventListener("submit", async (event) => {
     event.preventDefault();
     const formData = new FormData(newPost);
