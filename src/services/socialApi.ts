@@ -5,8 +5,8 @@ export type Profile = {
   name: string;
   email?: string;
   bio?: string;
-  avatar?: string;
-  banner?: string;
+  avatar?: string | { url: string; alt?: string };
+  banner?: string | { url: string; alt?: string };
   _count?: {
     followers?: number;
     following?: number;
@@ -40,7 +40,6 @@ function buildIncludeQuery(opts?: IncludeOptions) {
   return params.length ? `&${params.join("&")}` : "";
 }
 
-
 function toQuerySuffix(include: string) {
   if (!include) return "";
   return include.startsWith("&") ? `?${include.slice(1)}` : `?${include}`;
@@ -56,28 +55,32 @@ export async function listProfiles(params?: {
   const page = params?.page ?? 1;
   const searchQuery = params?.q ? `&q=${encodeURIComponent(params.q)}` : "";
   const include = buildIncludeQuery(params?.include);
-  return get<PagedResult<Profile>>(
+  const res = await get<PagedResult<Profile>>(
     `/social/profiles?limit=${limit}&page=${page}${searchQuery}${include}`
   );
+  return (res?.data as Profile[]) ?? [];
 }
 
 export async function getProfile(name: string, include?: IncludeOptions) {
   const includeQuery = toQuerySuffix(buildIncludeQuery(include));
-  return get<Profile>(
+  const res = await get<PagedResult<Profile>>(
     `/social/profiles/${encodeURIComponent(name)}${includeQuery}`
   );
+  return res?.data as Profile as Profile;
 }
 
 export async function getFollowers(name: string) {
-  return get<PagedResult<Profile>>(
+  const res = await get<PagedResult<Profile>>(
     `/social/profiles/${encodeURIComponent(name)}/followers`
   );
+  return (res?.data as Profile[]) ?? [];
 }
 
 export async function getFollowing(name: string) {
-  return get<PagedResult<Profile>>(
+  const res = await get<PagedResult<Profile>>(
     `/social/profiles/${encodeURIComponent(name)}/following`
   );
+  return (res?.data as Profile[]) ?? [];
 }
 
 export async function follow(name: string) {
@@ -109,9 +112,10 @@ export async function getProfilePosts(
 ) {
   const limit = params?.limit ?? 20;
   const page = params?.page ?? 1;
-  return get<PagedResult<any>>(
+  const res = await get<PagedResult<any>>(
     `/social/profiles/${encodeURIComponent(
       name
     )}/posts?limit=${limit}&page=${page}`
   );
+  return (res?.data as any[]) ?? [];
 }

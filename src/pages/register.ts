@@ -1,4 +1,4 @@
-import { registerUser } from "../services/authApi";
+import { registerUser, loginUser } from "../services/authApi";
 import { setAuth, emitAuthChanged } from "../storage/authentication";
 
 const outletId = "app-content";
@@ -30,23 +30,33 @@ export function renderRegister() {
       name: String(formData.get("name") || ""),
       email: String(formData.get("email") || ""),
       password: String(formData.get("password") || ""),
-      avatar: (formData.get("avatar")
-        ? String(formData.get("avatar"))
-        : undefined) as string | undefined,
-      banner: (formData.get("banner")
-        ? String(formData.get("banner"))
-        : undefined) as string | undefined,
+      avatar: formData.get("avatar")
+        ? { url: String(formData.get("avatar")), alt: "Avatar" }
+        : undefined,
+      banner: formData.get("banner")
+        ? { url: String(formData.get("banner")), alt: "Banner" }
+        : undefined,
     };
     msg && (msg.textContent = "Registering…");
     try {
       const response = await registerUser(body);
-      setAuth({
-        accessToken: response.accessToken,
-        name: response.name,
-        email: response.email,
+      console.log("Register response:", response);
+      // Some APIs don't return accessToken on register; perform auto-login to get token
+      const loginRes = await loginUser({
+        email: body.email,
+        password: body.password,
       });
+      setAuth({
+        accessToken: loginRes.data.accessToken,
+        name: loginRes.data.name,
+        email: loginRes.data.email,
+      });
+      console.log(
+        "register.ts: accessToken now in LS?",
+        localStorage.getItem("accessToken")
+      );
       emitAuthChanged();
-      msg && (msg.textContent = `Registered as ${response.name}`);
+      msg && (msg.textContent = `Registered as ${loginRes.data.name}`);
       history.pushState({ path: "/" }, "", "/");
       window.dispatchEvent(new PopStateEvent("popstate"));
     } catch (err: any) {

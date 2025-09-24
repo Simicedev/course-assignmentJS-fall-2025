@@ -1,3 +1,5 @@
+import { API_BASE_URL, NOROFF_API_KEY } from "../services/utils";
+
 export class ApiError extends Error {
   status: number;
   details: any;
@@ -10,12 +12,6 @@ export class ApiError extends Error {
   }
 }
 
-// Normalize base URL: trim spaces and drop trailing slashes
-const BASE_URL = String(import.meta.env.VITE_API_BASE_URL || "")
-  .trim()
-  .replace(/\/+$/, "");
-const apiKey = import.meta.env.VITE_NOROFF_API_KEY;
-console.log(BASE_URL);
 export async function apiClient(
   endpoint: string,
   options: RequestInit & { body?: any } = {}
@@ -23,6 +19,7 @@ export async function apiClient(
   // Get tokens from storage
 
   const accessToken = localStorage.getItem("accessToken");
+  console.log("apiClient: accessToken used:", accessToken);
 
   // Detect FormData
   const isFormData = options.body instanceof FormData;
@@ -33,7 +30,7 @@ export async function apiClient(
     ...(!isFormData && options.body !== undefined
       ? { "Content-Type": "application/json" }
       : {}),
-    ...(apiKey ? { "X-Noroff-API-Key": apiKey } : {}),
+    ...(NOROFF_API_KEY ? { "X-Noroff-API-Key": NOROFF_API_KEY } : {}),
     ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
     ...((options.headers as Record<string, string>) || {}),
   };
@@ -51,16 +48,9 @@ export async function apiClient(
   };
 
   try {
-    // Ensure exactly one slash between base and endpoint and avoid double /social
+    // Ensure exactly one slash between base and endpoint
     const path = endpoint.startsWith("/") ? endpoint : `/${endpoint}`;
-    const social = "/social";
-    let url = `${BASE_URL}${path}`;
-    if (BASE_URL.endsWith(social) && path.startsWith(`${social}/`)) {
-      url = `${BASE_URL}${path.slice(social.length)}`;
-    }
-    if (BASE_URL.endsWith(social) && path === social) {
-      url = `${BASE_URL}`;
-    }
+    const url = `${API_BASE_URL}${path}`;
     const response = await fetch(url, config);
 
     if (!response.ok) {

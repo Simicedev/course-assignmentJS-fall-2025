@@ -21,7 +21,19 @@ export function getUserEmail(): string | null {
 }
 
 export function setAuth(state: AuthState) {
-  if (state.accessToken) localStorage.setItem(TOKEN_KEY, state.accessToken);
+  if (state.accessToken) {
+    try {
+      localStorage.setItem(TOKEN_KEY, state.accessToken);
+      console.log(
+        "setAuth: saved accessToken",
+        state.accessToken.slice(0, 12) + "..."
+      );
+    } catch (e) {
+      console.warn("setAuth: failed to save accessToken", e);
+    }
+  } else {
+    console.warn("setAuth: no accessToken provided");
+  }
   if (state.name) localStorage.setItem(NAME_KEY, state.name);
   if (state.email) localStorage.setItem(EMAIL_KEY, state.email);
 }
