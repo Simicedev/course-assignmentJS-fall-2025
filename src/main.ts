@@ -4,6 +4,7 @@ import { renderLogin } from "./pages/login";
 import { renderRegister } from "./pages/register";
 import { renderPosts } from "./pages/posts";
 import { renderSinglePost } from "./pages/singlePost";
+import { renderMyProfile } from "./pages/myProfile";
 
 import {
   isAuthenticated,
@@ -39,7 +40,8 @@ function renderNav() {
     const name = getUserName();
     nav.innerHTML = `
       <a href="/" data-link>Home</a>
-      <a href="/profiles" data-link>Profiles</a>
+  <a href="/profiles" data-link>Profiles</a>
+  <a href="/me" data-link>My Profile</a>
       ${
         loggedIn
           ? `<span style=\"margin-left:auto\" class=\"muted\">Logged in as ${
@@ -97,6 +99,13 @@ const routes: Route[] = [
     view: (params) => {
       renderNav();
       renderProfileDetail(params?.name!);
+    },
+  },
+  {
+    path: "/me",
+    view: () => {
+      renderNav();
+      renderMyProfile();
     },
   },
   {
