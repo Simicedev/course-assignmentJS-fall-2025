@@ -1,6 +1,18 @@
 import { getPost, type PostModel } from "../services/postsApi";
+import { createHTML } from "../services/utils";
 
-const outletId = "app-content";
+const appContent = "app-content";
+
+/**
+ * Normalize media input for a post
+ * @param media - media can be a string URL or an object with url and alt properties
+ * @returns {Object} Normalized media object
+ * @returns {string} url - The URL of the media
+ * @returns {string} alt - The alt text for the media
+ * @example
+ * const media = normalizeMedia(post.media);
+ * console.log(media.url, media.alt);
+ */
 
 function normalizeMedia(media: any): { url: string; alt: string } | null {
   if (!media) return { url: "", alt: "" };
@@ -10,12 +22,32 @@ function normalizeMedia(media: any): { url: string; alt: string } | null {
   return { url, alt: media?.alt };
 }
 
+/**
+ * Get the author information from a post
+ * @param {PostModel} post
+ * @returns {Object} Author information
+ * @returns {string} name - The name of the author, or "Unknown" if post.author is missing
+ * @returns {string} avatar - The URL of the author's avatar
+ * @example
+ * const author = getAuthor(post);
+ * console.log(author.name, author.avatar);
+ */
+
 function getAuthor(post: PostModel) {
   const name = post?.author?.name ?? "Unknown";
   const avatar =
     (post as any)?.author?.avatar?.url || (post as any)?.author?.avatar || "";
   return { name, avatar };
 }
+
+/**
+ * Generate the HTML element for displaying a single post
+ * @param {PostModel} post - Post data
+ * @returns {string} HTML string for the post
+ * @example
+ * const postHtml = singlePostDisplay(post);
+ * document.body.innerHTML = postHtml;
+ */
 
 function singlePostDisplay(post: PostModel): string {
   const media = normalizeMedia((post as any).media);
@@ -42,7 +74,7 @@ function singlePostDisplay(post: PostModel): string {
 }
 
 export async function renderSinglePost(postId: string) {
-  const root = document.getElementById(outletId);
+  const root = document.getElementById(appContent);
   if (!root) return;
   root.textContent = "Loading post…";
 
@@ -52,10 +84,20 @@ export async function renderSinglePost(postId: string) {
       comments: true,
       reactions: true,
     });
-    root.innerHTML = singlePostDisplay(post);
+    const el = createHTML(singlePostDisplay(post));
+    if (el) {
+      root.replaceChildren(el);
+    } else {
+      root.textContent = "Failed to render post";
+    }
   } catch (err: any) {
-    root.innerHTML = `<p style="color:red">${
-      err?.message ?? "Failed to load post"
-    }</p>`;
+    const errorEl = createHTML(
+      `<p style="color:red">${err?.message ?? "Failed to load post"}</p>`
+    );
+    if (errorEl) {
+      root.replaceChildren(errorEl);
+    } else {
+      root.textContent = err?.message ?? "Failed to load post";
+    }
   }
 }
