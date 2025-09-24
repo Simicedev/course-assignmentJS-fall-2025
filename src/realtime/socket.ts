@@ -1,34 +1,40 @@
 import { io, Socket } from "socket.io-client";
+import { VITE_SOCKET_URL as SOCKET_BASE_URL } from "../services/utils";
 
 let socket: Socket | null = null;
 
-/**
- * Internal helper to build the dev URL. Prefers explicit VITE_SOCKET_URL, then falls back to port.
- */
-function buildDevSocketUrl(): string | undefined {
-  const explicit = import.meta.env.VITE_SOCKET_URL as string | undefined;
-  if (explicit) return explicit.trim();
-  const port =
-    (import.meta.env.VITE_SOCKET_PORT as string | undefined) || "3000";
-  return `http://localhost:${port}`;
+
+function buildSocketUrlFromUtils(): string | undefined {
+  const url = (SOCKET_BASE_URL || "").trim();
+  return url ? url : undefined;
 }
 
-/**
- * Lazily create (or return existing) Socket.IO client instance.
- * In production we rely on same-origin (undefined URL lets client infer current origin).
- */
 export function getSocket(): Socket {
   if (socket) return socket;
-  const url = import.meta.env.DEV ? buildDevSocketUrl() : undefined;
-  if (import.meta.env.DEV) {
-    console.info("[socket] initializing in DEV with URL:", url);
+  const enable =
+    (
+      import.meta.env.VITE_ENABLE_SOCKET as string | undefined
+    )?.toLowerCase() !== "false";
+  const url = buildSocketUrlFromUtils();
+  if (!enable || !url) {
+    console.info(
+      "[socket] disabled (enable via VITE_ENABLE_SOCKET!=false and set VITE_SOCKET_URL in utils)."
+    );
+    // Create a no-op shim to avoid crashes when imports call on/emit
+    const avoidCrash: any = {
+      on: () => avoidCrash,
+      once: () => avoidCrash,
+      emit: () => avoidCrash,
+    };
+    return (socket = avoidCrash as unknown as Socket);
   }
+  console.info("[socket] initializing with URL:", url);
   socket = io(url, {
     autoConnect: true,
-    // You could explicitly set transports: ["websocket"] if you want to skip polling.
+
   });
 
-  // Attach useful lifecycle logging (can be removed later or guarded by env flag)
+  // Attach useful lifecycle logging remove clg later
   socket.on("connect", () => {
     console.log("[socket] connected", socket?.id);
   });
