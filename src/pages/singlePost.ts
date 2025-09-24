@@ -33,7 +33,7 @@ function normalizeMedia(media: any): { url: string; alt: string } | null {
  * console.log(author.name, author.avatar);
  */
 
-function getAuthor(post: PostModel) {
+export function getAuthor(post: PostModel) {
   const name = post?.author?.name ?? "Unknown";
   const avatar =
     (post as any)?.author?.avatar?.url || (post as any)?.author?.avatar || "";
@@ -52,7 +52,6 @@ function getAuthor(post: PostModel) {
 function singlePostDisplay(post: PostModel): string {
   const media = normalizeMedia((post as any).media);
   const { name, avatar } = getAuthor(post);
-  console.log(post);
   const avatarImg = avatar
     ? `<img src="${avatar}" alt="${name}" class="c-singlePost-avatar-img"/>`
     : "";
