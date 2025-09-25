@@ -42,12 +42,7 @@ Run the API / websocket server (default port from `server.ts`, override with `PO
 ```
 npm start
 ```
-
-Example with custom port:
-
-```
-npm run start:3001
-```
+npm install --save-dev prettier
 
 ### Build
 
@@ -63,17 +58,6 @@ Artifacts go to `dist/`.
 npm run preview
 ```
 
-## Environment Variables
-
-Create a `.env` file (not committed) for overrides.
-Example:
-
-```
-PORT=3000
-ORIGIN=http://localhost:5173
-```
-
-Adjust server code to consume additional vars as needed.
 
 ## Project Structure (partial)
 
@@ -91,12 +75,11 @@ src/
 
 - `dev` – Vite dev server
 - `start` – Runs `server.ts` via tsx
-- `start:3000`, `start:3001` – Convenience with PORT presets
+- `start:3000`, – Convenience with PORT preset
 - `build` – Type check then bundle
 - `preview` – Preview built client
-
+- `prettier` - Prettier
 ## Contributing
-
 1. Fork & clone
 2. Create a feature branch: `git checkout -b feat/something`
 3. Commit using conventional style (e.g., `feat: add profile page`)
