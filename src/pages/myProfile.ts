@@ -3,7 +3,7 @@ import { isAuthenticated, getUserName } from "../storage/authentication";
 import {
   getProfile,
   getProfilePosts,
-  type Profile,
+  type Profile
 } from "../services/socialApi";
 import { createPost, deletePost, type PostModel } from "../services/postsApi";
 
@@ -31,15 +31,15 @@ function headerHtml(profile: Profile) {
       <img src="${banner}" alt="banner" style="width:100%;max-height:200px;object-fit:cover"/>
       <div style="display:flex;gap:12px;align-items:center;margin-top:-32px">
         <img src="${avatar}" alt="${
-    profile.name
-  }" width="96" height="96" style="border-radius:50%;border:3px solid #fff"/>
+          profile.name
+        }" width="96" height="96" style="border-radius:50%;border:3px solid #fff"/>
         <div>
           <h2>${profile.name}</h2>
           ${profile.bio ? `<p>${profile.bio}</p>` : ""}
           <small>
             Posts: ${profile._count?.posts ?? 0} · Followers: ${
-    profile._count?.followers ?? 0
-  } · Following: ${profile._count?.following ?? 0}
+              profile._count?.followers ?? 0
+            } · Following: ${profile._count?.following ?? 0}
           </small>
         </div>
       </div>
@@ -111,7 +111,7 @@ export async function renderMyProfile() {
   try {
     const [profile, posts] = await Promise.all([
       getProfile(name, { posts: true, followers: true, following: true }),
-      getProfilePosts(name, { limit: 20, page: 1 }),
+      getProfilePosts(name, { limit: 20, page: 1 })
     ]);
 
     const container = document.createElement("section");
