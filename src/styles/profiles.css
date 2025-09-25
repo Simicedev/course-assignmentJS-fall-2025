@@ -1,0 +1,223 @@
+/* Profiles & Profile Detail Styles */
+
+.c-loading {
+  font-size: 0.95rem;
+  color: #555;
+  padding: 1rem;
+}
+
+.c-error {
+  color: #b00020;
+  background: #ffe6e9;
+  padding: 0.75rem 1rem;
+  border: 1px solid #f5b5bd;
+  border-radius: 6px;
+  font-size: 0.95rem;
+}
+
+/* Grid of profiles */
+.c-profiles-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  padding: 1rem 0;
+  align-items: start;
+}
+
+.c-profile-card {
+  background: #1a1329;
+  border: 1px solid #e2e6ea;
+  border-radius: 8px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  transition:
+    box-shadow 0.15s ease,
+    transform 0.15s ease;
+}
+.c-profile-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
+}
+/* Card inner clickable area */
+.c-profile-card-link {
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  color: inherit;
+  height: 100%;
+}
+
+.c-profile-card-banner-wrap {
+  width: 100%;
+  aspect-ratio: 5 / 2;
+  background: #120a1e;
+  overflow: hidden;
+  position: relative;
+}
+.c-profile-card-banner {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.c-profile-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.75rem 0.85rem 1rem;
+  position: relative;
+}
+.c-profile-card-avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #fff;
+  margin-top: -46px;
+  background: #160b1f;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+}
+.c-profile-card-name {
+  font-size: 1rem;
+  margin: 0;
+  font-weight: 600;
+  line-height: 1.2;
+}
+.c-profile-card-bio {
+  font-size: 0.75rem;
+  line-height: 1.3;
+  color: #888;
+  margin: 0;
+}
+
+/* Profile Detail */
+.c-profile-detail {
+  display: block;
+  background: #100b13;
+  border: 1px solid #e2e6ea;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+}
+.c-profile-detail-header {
+  position: relative;
+}
+.c-profile-detail-banner {
+  width: 100%;
+  max-height: 240px;
+  object-fit: cover;
+  display: block;
+}
+.c-profile-detail-identity {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  padding: 0 1.25rem 1rem;
+}
+.c-profile-detail-avatar {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  border: 4px solid #fff;
+  object-fit: cover;
+  background: #1b0a0a;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+.c-profile-detail-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+.c-profile-detail-name {
+  margin: 0;
+  font-size: 1.4rem;
+  line-height: 1.15;
+}
+.c-profile-detail-bio {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #444;
+  line-height: 1.35;
+}
+.c-profile-detail-stats {
+  font-size: 0.75rem;
+  color: #666;
+}
+
+.c-profile-detail-actions {
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.75rem 1.25rem 1.25rem;
+}
+
+/* Buttons */
+.c-btn {
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  padding: 0.55rem 1rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  transition:
+    background 0.15s ease,
+    box-shadow 0.15s ease;
+}
+.c-btn:hover {
+  background: #1d4ed8;
+}
+.c-btn:active {
+  background: #1e40af;
+}
+.c-btn:focus-visible {
+  outline: 2px solid #1d4ed8;
+  outline-offset: 2px;
+}
+.c-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Posts On PROFILESection */
+
+.c-profile-posts-list {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  padding-bottom: 2rem;
+}
+
+@media only screen and (min-width: 600px) {
+  .c-profile-posts-list {
+    flex-direction: row;
+    justify-content: space-evenly;
+    align-items: stretch;
+  }
+}
+
+/* Utility (scoped to profiles) */
+
+@media (max-width: 640px) {
+  .c-profile-detail-identity {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .c-profile-detail-avatar {
+    width: 80px;
+    height: 80px;
+  }
+  .c-profile-detail-name {
+    font-size: 1.2rem;
+  }
+}

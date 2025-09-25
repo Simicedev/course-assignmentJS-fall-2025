@@ -1,0 +1,20 @@
+.c-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  padding-bottom: 2rem;
+}
+
+.c-pagination-btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 15px;
+  border: none;
+  cursor: pointer;
+  height: 45px;
+  width: 60px;
+  font-weight: bold;
+  transition: ease-in-out 0.3s;
+}

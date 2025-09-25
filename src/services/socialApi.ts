@@ -119,3 +119,35 @@ export async function getProfilePosts(
   );
   return (res?.data as any[]) ?? [];
 }
+
+export async function fetchAllProfiles(options?: {
+  pageSize?: number;
+  maxPages?: number;
+  maxTotal?: number;
+  include?: IncludeOptions;
+  q?: string;
+}): Promise<Profile[]> {
+  const pageSize = options?.pageSize ?? 100;
+  const maxPages = options?.maxPages ?? 50;
+  const maxTotal = options?.maxTotal;
+  const accumulator: Profile[] = [];
+  let page = 1;
+
+  while (page <= maxPages) {
+    const batch = await listProfiles({
+      limit: pageSize,
+      page,
+      q: options?.q,
+      include: options?.include
+    });
+    if (!batch.length) break;
+    for (const p of batch) {
+      accumulator.push(p);
+      if (maxTotal && accumulator.length >= maxTotal) return accumulator;
+    }
+
+    if (batch.length < pageSize) break;
+    page += 1;
+  }
+  return accumulator;
+}

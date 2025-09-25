@@ -3,7 +3,7 @@ import {
   createPost,
   reactToPost,
   commentOnPost,
-  type PostModel,
+  type PostModel
 } from "../services/postsApi";
 import { on as onSocket, emit as emitSocket } from "../realtime/socket";
 import { isAuthenticated } from "../storage/authentication";
@@ -11,6 +11,71 @@ import { createHTML } from "../services/utils";
 import { getAuthor } from "./singlePost";
 
 const outletId = "app-content";
+
+// Pagination state (module scope)
+let postsPage = 1;
+const POSTS_PAGE_SIZE = 10;
+let hasNextPage = true; // heuristic; updated after each fetch
+
+// Generic pagination control builder (exported for reuse in other pages)
+export function createPaginationControls(options: {
+  page: number;
+  hasNext: boolean;
+  hasPrev?: boolean; // auto derived if omitted (page > 1)
+  onPrev: () => Promise<void> | void;
+  onNext: () => Promise<void> | void;
+  label?: string; // aria-label override
+}): HTMLElement {
+  const { page, hasNext, onPrev, onNext, label } = options;
+  const hasPrev = options.hasPrev ?? page > 1;
+  const nav = document.createElement("section");
+  nav.className = "c-pagination";
+  nav.setAttribute("aria-label", label || "Pagination");
+  const prevBtn = document.createElement("button");
+  prevBtn.textContent = "Prev";
+  prevBtn.className = "c-pagination-btn";
+  prevBtn.disabled = !hasPrev;
+  prevBtn.addEventListener("click", async () => {
+    if (prevBtn.disabled) return;
+    await onPrev();
+  });
+  const status = document.createElement("span");
+  status.className = "c-pagination-status";
+  status.textContent = `Page ${page}`;
+  const nextBtn = document.createElement("button");
+  nextBtn.textContent = "Next";
+  nextBtn.className = "c-pagination-btn";
+  nextBtn.disabled = !hasNext;
+  nextBtn.addEventListener("click", async () => {
+    if (nextBtn.disabled) return;
+    await onNext();
+  });
+  nav.append(prevBtn, status, nextBtn);
+  return nav;
+}
+
+function renderPaginationControls(
+  container: HTMLElement,
+  rerender: () => Promise<void>
+) {
+  container.innerHTML = "";
+  const nav = createPaginationControls({
+    page: postsPage,
+    hasNext: hasNextPage,
+    onPrev: async () => {
+      if (postsPage === 1) return;
+      postsPage -= 1;
+      await rerender();
+    },
+    onNext: async () => {
+      if (!hasNextPage) return;
+      postsPage += 1;
+      await rerender();
+    },
+    label: "Posts pagination"
+  });
+  container.appendChild(nav);
+}
 
 export async function renderPosts() {
   const root = document.getElementById(outletId);
@@ -110,12 +175,16 @@ export async function renderPosts() {
   const header = createHTML(headerHtml()) as HTMLElement | null;
   const list = document.createElement("div");
   list.className = "c-posts-container";
+  const paginationMount = document.createElement("div");
+  paginationMount.id = "posts-pagination";
 
   async function refresh() {
     const posts = await listPosts({
-      limit: 10,
-      include: { author: true, comments: true, reactions: true },
+      page: postsPage,
+      limit: POSTS_PAGE_SIZE,
+      include: { author: true, comments: true, reactions: true }
     });
+    hasNextPage = posts.length === POSTS_PAGE_SIZE; // heuristic
     list.replaceChildren();
     posts.forEach((post: PostModel) => {
       const item = createHTML(postCardHtml(post)) as HTMLElement | null;
@@ -143,7 +212,6 @@ export async function renderPosts() {
         });
       });
 
-   
     list
       .querySelectorAll<HTMLFormElement>("form[data-comment]")
       .forEach((commentForm) => {
@@ -157,11 +225,13 @@ export async function renderPosts() {
           await refresh();
         });
       });
+
+    renderPaginationControls(paginationMount, refresh);
   }
 
   root.replaceChildren();
   if (header) root.append(header);
-  root.append(list);
+  root.append(list, paginationMount);
 
   const newPost = header?.querySelector("#new-post") as HTMLFormElement | null;
   newPost?.addEventListener("submit", async (event) => {
@@ -179,6 +249,8 @@ export async function renderPosts() {
     newPost.reset();
     // Optional: also emit a local signal for other connected tabs against the local server
     emitSocket("post:created", { title, body });
+    // After creating a new post return to first page to show new post
+    postsPage = 1;
     await refresh();
   });
 

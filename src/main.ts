@@ -10,7 +10,7 @@ import {
   isAuthenticated,
   getUserName,
   clearAuth,
-  emitAuthChanged,
+  emitAuthChanged
 } from "./storage/authentication";
 import { Router, type Route } from "./router/router";
 
@@ -78,50 +78,50 @@ const routes: Route[] = [
       renderNav();
       // Root now shows the posts feed directly
       renderPosts();
-    },
+    }
   },
   {
     path: "/posts/:id",
     view: (params) => {
       renderNav();
       renderSinglePost(params?.id!);
-    },
+    }
   },
   {
     path: "/profiles",
     view: () => {
       renderNav();
       renderProfilesList();
-    },
+    }
   },
   {
     path: "/profiles/:name",
     view: (params) => {
       renderNav();
       renderProfileDetail(params?.name!);
-    },
+    }
   },
   {
     path: "/me",
     view: () => {
       renderNav();
       renderMyProfile();
-    },
+    }
   },
   {
     path: "/login",
     view: () => {
       renderNav();
       renderLogin();
-    },
+    }
   },
   {
     path: "/register",
     view: () => {
       renderNav();
       renderRegister();
-    },
-  },
+    }
+  }
 ];
 
 const outletEl = document.getElementById("app-content")!;
