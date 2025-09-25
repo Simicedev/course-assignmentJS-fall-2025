@@ -3,6 +3,7 @@ import {
   follow,
   unfollow,
   fetchAllProfiles,
+  listProfiles,
   type Profile
 } from "../services/socialApi";
 import { getProfilePosts } from "../services/socialApi";
@@ -14,6 +15,16 @@ import { createPaginationControls } from "./posts";
 const rootId = "app-content";
 let profilePostsPage = 1;
 const PROFILE_POSTS_PAGE_SIZE = 10;
+// Cache for profiles list so a simple client-side username search can filter
+let cachedProfiles: Profile[] = [];
+// --- Remote search state (aggregated full search) ---
+let remoteQuery = "";
+let remoteInFlight = 0;
+let remoteDebounce: number | null = null;
+const REMOTE_MIN_CHARS = 1; // allow search after 1 char (adjust for API load)
+const REMOTE_PAGE_LIMIT = 30; // page size for server search
+let remotePage = 1; // current page in paged server search
+let remoteAccumulated: Profile[] = []; // accumulated results so far
 
 function profileCardHtml(profile: Profile): string {
   const selfName = getUserName();
@@ -175,14 +186,217 @@ function buildProfilesGrid(profiles: Profile[]): HTMLElement {
   return container;
 }
 
+// --- Basic username search (client-side, case-insensitive) ---
+function searchBarHtml(): string {
+  return `
+    <div class="c-profiles-basic-search" id="profiles-search-bar">
+      <label for="profiles-search-input" class="c-profiles-basic-search-label">Search username:</label>
+      <input id="profiles-search-input" class="c-profiles-basic-search-input" type="text" placeholder="Type ${REMOTE_MIN_CHARS}+ chars to search all users…" />
+      <button type="button" id="profiles-search-clear" class="btn btn-secondary" hidden>Clear</button>
+    </div>
+    <div id="profiles-search-status" class="c-profiles-search-status" aria-live="polite"></div>
+  `;
+}
+
+function filterProfilesByName(query: string): Profile[] {
+  if (!query.trim()) return cachedProfiles;
+  const q = query.trim().toLowerCase();
+  return cachedProfiles.filter((p) => p.name.toLowerCase().includes(q));
+}
+
+function rebuildProfilesGrid(containerMount: HTMLElement, profiles: Profile[]) {
+  const newGrid = buildProfilesGrid(profiles);
+  containerMount.replaceWith(newGrid);
+  return newGrid; // return for further operations if needed
+}
+
 export async function renderProfilesList() {
   const root = document.getElementById(rootId);
   if (!root) return;
   root.replaceChildren(buildNode(loadingHtml("Loading profiles…"))!);
   try {
     const data = await fetchAllProfiles({ pageSize: 100, maxPages: 4 });
-    const grid = buildProfilesGrid(data);
-    root.replaceChildren(grid);
+    cachedProfiles = data;
+    const searchBar = buildNode(searchBarHtml());
+    const grid = buildProfilesGrid(cachedProfiles);
+    root.replaceChildren(searchBar!, grid);
+
+    // Wire up search input – filters locally without extra network
+    const input = document.getElementById(
+      "profiles-search-input"
+    ) as HTMLInputElement | null;
+    const clearBtn = document.getElementById(
+      "profiles-search-clear"
+    ) as HTMLButtonElement | null;
+    const statusEl = document.getElementById(
+      "profiles-search-status"
+    ) as HTMLElement | null;
+    statusEl &&
+      (statusEl.textContent = `Type ${REMOTE_MIN_CHARS}+ chars to search entire API (username)`);
+
+    function showLocalFilter(val: string) {
+      const currentGrid = root!.querySelector(".c-profiles-grid");
+      if (currentGrid)
+        rebuildProfilesGrid(
+          currentGrid as HTMLElement,
+          filterProfilesByName(val)
+        );
+      statusEl &&
+        (statusEl.textContent = val.trim()
+          ? "Filtered locally"
+          : "Showing cached list");
+    }
+    function resetRemoteState() {
+      remotePage = 1;
+      remoteAccumulated = [];
+    }
+
+    async function runPagedRemoteSearch(append = false) {
+      const gridEl = root!.querySelector(
+        ".c-profiles-grid"
+      ) as HTMLElement | null;
+      if (!gridEl) return;
+      const q = remoteQuery.trim();
+      if (q.length < REMOTE_MIN_CHARS) {
+        showLocalFilter(q);
+        return;
+      }
+      const currentPage = append ? remotePage + 1 : 1;
+      if (!append) {
+        resetRemoteState();
+        gridEl.replaceChildren(
+          buildNode(`<p class='c-loading'>Searching…</p>`)!
+        );
+        statusEl && (statusEl.textContent = "Searching server…");
+      } else {
+        statusEl && (statusEl.textContent = "Loading more…");
+      }
+      const searchId = ++remoteInFlight;
+      try {
+        const pageData = await listProfiles({
+          limit: REMOTE_PAGE_LIMIT,
+          page: currentPage,
+          q
+        });
+        if (searchId !== remoteInFlight) return; // stale response
+        if (!pageData.length && currentPage === 1) {
+          gridEl.replaceChildren(
+            buildNode(
+              `<p class='c-empty'>No results for \"${q.split("<").join("&lt;")}\"</p>`
+            )!
+          );
+          statusEl && (statusEl.textContent = "");
+          document.getElementById("profiles-search-more")?.remove();
+          return;
+        }
+        if (!append) gridEl.replaceChildren();
+        remotePage = currentPage;
+        remoteAccumulated = append
+          ? remoteAccumulated.concat(pageData)
+          : pageData.slice();
+        pageData.forEach((p) => {
+          const card = buildNode(profileCardHtml(p));
+          if (card) gridEl.appendChild(card);
+        });
+        const hasMore = pageData.length === REMOTE_PAGE_LIMIT;
+        let moreBtn = document.getElementById(
+          "profiles-search-more"
+        ) as HTMLButtonElement | null;
+        if (hasMore) {
+          if (!moreBtn) {
+            moreBtn = document.createElement("button");
+            moreBtn.id = "profiles-search-more";
+            moreBtn.className = "btn btn-secondary";
+            moreBtn.textContent = "Load more";
+            gridEl.after(moreBtn);
+          }
+          moreBtn.onclick = () => runPagedRemoteSearch(true);
+          statusEl &&
+            (statusEl.textContent = `Showing ${remoteAccumulated.length} so far…`);
+        } else {
+          document.getElementById("profiles-search-more")?.remove();
+          statusEl &&
+            (statusEl.textContent = `Found ${remoteAccumulated.length} result${remoteAccumulated.length === 1 ? "" : "s"}`);
+        }
+      } catch (e: any) {
+        if (searchId !== remoteInFlight) return;
+        gridEl.replaceChildren(
+          buildNode(
+            `<p class='c-error'>Search failed: ${e?.message || "Unknown error"}</p>`
+          )!
+        );
+        statusEl && (statusEl.textContent = "");
+        document.getElementById("profiles-search-more")?.remove();
+      }
+    }
+
+    function scheduleRemotePaged() {
+      if (remoteDebounce) window.clearTimeout(remoteDebounce);
+      remoteDebounce = window.setTimeout(
+        () => runPagedRemoteSearch(false),
+        300
+      );
+    }
+
+    input?.addEventListener("input", () => {
+      const val = input.value;
+      clearBtn && (clearBtn.hidden = val.length === 0);
+      remoteQuery = val;
+      if (val.trim().length < REMOTE_MIN_CHARS) {
+        // live local filter while below threshold
+        showLocalFilter(val);
+        return;
+      }
+      scheduleRemotePaged();
+    });
+
+    clearBtn?.addEventListener("click", () => {
+      if (!input) return;
+      input.value = "";
+      remoteQuery = "";
+      clearBtn.hidden = true;
+      showLocalFilter("");
+      input.focus();
+    });
+
+    input?.addEventListener("keydown", async (e) => {
+      if (e.key === "Escape") {
+        if (input.value) {
+          input.value = "";
+          remoteQuery = "";
+          clearBtn && (clearBtn.hidden = true);
+          showLocalFilter("");
+        } else {
+          input.blur();
+        }
+      }
+      if (e.key === "Enter") {
+        e.preventDefault();
+        remoteQuery = input.value.trim();
+        // Try exact profile match instantly for fast navigation
+        if (remoteQuery) {
+          try {
+            const exact = await getProfile(remoteQuery, {
+              followers: false,
+              following: false,
+              posts: false
+            });
+            if (exact?.name) {
+              history.pushState(
+                { path: `/profiles/${exact.name}` },
+                "",
+                `/profiles/${exact.name}`
+              );
+              window.dispatchEvent(new PopStateEvent("popstate"));
+              return; // navigated to detail view
+            }
+          } catch {
+            /* ignore, fallback to search */
+          }
+        }
+        runPagedRemoteSearch(false);
+      }
+    });
   } catch (error: any) {
     root.replaceChildren(
       buildNode(errorHtml(error?.message || "Failed to load profiles"))!
