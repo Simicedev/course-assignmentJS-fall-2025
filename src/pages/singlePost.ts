@@ -14,12 +14,14 @@ const appContent = "app-content";
  * console.log(media.url, media.alt);
  */
 
-function normalizeMedia(media: any): { url: string; alt: string } | null {
-  if (!media) return { url: "", alt: "" };
+export function normalizeMedia(
+  media: any
+): { url: string; alt: string } | null {
+  if (!media) return null;
   if (typeof media === "string") return { url: media, alt: "media" };
   const url = media?.url as string;
-  if (!url) return { url: "", alt: "" };
-  return { url, alt: media?.alt };
+  if (!url) return null;
+  return { url, alt: media?.alt || "media" };
 }
 
 /**
@@ -55,11 +57,14 @@ function singlePostDisplay(post: PostModel): string {
   const avatarImg = avatar
     ? `<img src="${avatar}" alt="${name}" class="c-singlePost-avatar-img"/>`
     : "";
+  const mediaImg = media
+    ? `<img src="${media.url}" alt="${media.alt}" class="c-singlePost-media"/>`
+    : "";
   return `
     <article class="single-post-container">
       <a href="/" data-link>← Back</a>
       <h3>${post.title}</h3>
-      <img src="${media?.url}" alt="${media?.alt}" class="c-singlePost-media"/>
+      ${mediaImg}
       <p>${post.body}</p>
       <footer class="c-singlePost-footer">
         <small>By ${avatarImg}<a href="/profiles/${encodeURIComponent(
