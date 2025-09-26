@@ -59,6 +59,28 @@ body {
   line-height: 1.55;
 }
 
+/* READ THIS CHANGE */
+/* Searchbar */
+#user-search-form {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 8px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 8px 16px;
+  box-shadow: var(--shadow);
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+#user-search-input {
+  flex: 1;
+  min-width: 0;
+}
+
 /* Layout */
 #js-primary-nav {
   position: sticky;

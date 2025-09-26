@@ -8,6 +8,21 @@
     <link rel="manifest" href="/manifest.json" />
   </head>
   <body>
+    <!-- READ THIS CHANGE -->
+    <form
+      id="user-search-form"
+      style="display: flex; gap: 8px; align-items: center; margin-bottom: 8px"
+    >
+      <input
+        id="user-search-input"
+        type="text"
+        placeholder="Search user by email or username"
+        required
+        style="flex: 1"
+      />
+      <button type="submit">Search</button>
+    </form>
+
     <nav id="js-primary-nav" style="display: flex; gap: 12px; padding: 8px 0">
       <a href="/">Home</a>
       <a href="/profiles" data-link>Profiles</a>
@@ -19,5 +34,11 @@
     <main id="app-content">Loading…</main>
 
     <script type="module" src="/src/main.ts"></script>
+    <script type="module">
+      import { debouncedSearchAndGoToUser } from "/src/pages/userSearch.ts";
+      document
+        .getElementById("user-search-form")
+        ?.addEventListener("submit", debouncedSearchAndGoToUser);
+    </script>
   </body>
 </html>
