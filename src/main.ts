@@ -13,6 +13,7 @@ import {
   emitAuthChanged
 } from "./storage/authentication";
 import { Router, type Route } from "./router/router";
+import { editPostPageDisplay } from "./pages/edit";
 
 // Only register the service worker in production to avoid interfering with Vite HMR in dev
 if (import.meta.env.PROD && "serviceWorker" in navigator) {
@@ -120,6 +121,13 @@ const routes: Route[] = [
     view: () => {
       renderNav();
       renderRegister();
+    }
+  },
+  {
+    path: "/edit/:id",
+    view: (params) => {
+      renderNav();
+      editPostPageDisplay(params?.id!);
     }
   }
 ];
