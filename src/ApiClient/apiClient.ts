@@ -19,20 +19,17 @@ export async function apiClient(
   // Get tokens from storage
 
   const accessToken = localStorage.getItem("accessToken");
-  console.log("apiClient: accessToken used:", accessToken);
 
-  // Detect FormData
   const isFormData = options.body instanceof FormData;
 
   // Build headers
   const headers: Record<string, string> = {
-    // Only set Content-Type for non-FormData when a body is provided
     ...(!isFormData && options.body !== undefined
       ? { "Content-Type": "application/json" }
       : {}),
     ...(NOROFF_API_KEY ? { "X-Noroff-API-Key": NOROFF_API_KEY } : {}),
     ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
-    ...((options.headers as Record<string, string>) || {}),
+    ...((options.headers as Record<string, string>) || {})
   };
 
   // Build config
@@ -43,8 +40,8 @@ export async function apiClient(
     body: isFormData
       ? options.body
       : options.body
-      ? JSON.stringify(options.body)
-      : undefined,
+        ? JSON.stringify(options.body)
+        : undefined
   };
 
   try {

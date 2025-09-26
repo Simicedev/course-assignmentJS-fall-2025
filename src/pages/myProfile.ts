@@ -79,6 +79,7 @@ function postCardHtml(post: PostModel) {
       <div class="c-posts-body">${post.body ? `<p>${post.body}</p>` : ""}</div>
       <div class="c-posts-actions">
         <button data-delete="${post.id}">Delete</button>
+        <a href="/edit/${post.id}" data-link><button data-edit="${post.id}">Edit</button></a>
       </div>
     </article>
   `;
