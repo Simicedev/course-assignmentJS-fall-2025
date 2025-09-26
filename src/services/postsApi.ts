@@ -38,14 +38,16 @@ export async function listPosts(params?: {
   page?: number;
   limit?: number;
   tag?: string;
+  q?: string; // server-side search (title/body) if API supports
   include?: Include;
 }) {
   const limit = params?.limit ?? 20;
   const page = params?.page ?? 1;
   const tag = params?.tag ? `&_tag=${encodeURIComponent(params.tag)}` : "";
+  const searchQuery = params?.q ? `&q=${encodeURIComponent(params.q)}` : "";
   const includeQuery = buildPostInclude(params?.include);
   const res = await get<PagedResponse<PostModel>>(
-    `/social/posts?limit=${limit}&page=${page}${tag}${includeQuery}`
+    `/social/posts?limit=${limit}&page=${page}${searchQuery}${tag}${includeQuery}`
   );
   return res?.data ?? ([] as PostModel[]);
 }

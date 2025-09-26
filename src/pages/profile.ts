@@ -191,7 +191,7 @@ function searchBarHtml(): string {
   return `
     <div class="c-profiles-basic-search" id="profiles-search-bar">
       <label for="profiles-search-input" class="c-profiles-basic-search-label">Search username:</label>
-      <input id="profiles-search-input" class="c-profiles-basic-search-input" type="text" placeholder="Type ${REMOTE_MIN_CHARS}+ chars to search all users…" />
+      <input id="profiles-search-input" class="c-profiles-basic-search-input" type="text" placeholder="Type full username and press enter" />
       <button type="button" id="profiles-search-clear" class="btn btn-secondary" hidden>Clear</button>
     </div>
     <div id="profiles-search-status" class="c-profiles-search-status" aria-live="polite"></div>
@@ -232,7 +232,7 @@ export async function renderProfilesList() {
       "profiles-search-status"
     ) as HTMLElement | null;
     statusEl &&
-      (statusEl.textContent = `Type ${REMOTE_MIN_CHARS}+ chars to search entire API (username)`);
+      (statusEl.textContent = `Type full username`);
 
     function showLocalFilter(val: string) {
       const currentGrid = root!.querySelector(".c-profiles-grid");
