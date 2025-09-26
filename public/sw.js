@@ -1,10 +1,3 @@
-// Improved service worker to avoid serving a stale index.html that references
-// old hashed asset names after each deploy (a common cause of 404 on /assets/*).
-// Strategy:
-//  - Network-first for navigations (so new index.html arrives immediately)
-//  - Cache-first for other same-origin GET requests with a graceful fallback
-//  - Do NOT permanently cache index.html under an old hash reference
-//  - Bump CACHE_VERSION when you change SW behavior
 
 const CACHE_VERSION = "v4"; // increment to invalidate old caches
 const CACHE_NAME = `pwa-shell-${CACHE_VERSION}`;
