@@ -1,12 +1,11 @@
 # Course Assignment Fall 2025 
 
-A Vite + TypeScript client with an Express + Socket.IO server for a coursework assignment (Fall 2025).
+A Vite + TypeScript client for a coursework assignment (Fall 2025).
 
 ## Features
 
 - Client-side routing (`src/router/router.ts`)
 - Authentication flow (login/register) storing tokens in `src/storage`
-- Realtime updates via Socket.IO (`src/realtime/socket.ts`)
 - REST-like API abstraction in `src/services` and `src/ApiClient`
 - Offline-ready assets (service worker in `public/sw.js`)
 
@@ -15,7 +14,6 @@ A Vite + TypeScript client with an Express + Socket.IO server for a coursework a
 - TypeScript
 - Vite (dev/build tooling)
 - Express 5
-- Socket.IO (server & client)
 
 ## Getting Started
 
@@ -35,9 +33,6 @@ Run Vite dev server (serves frontend):
 
 ```
 npm run dev
-```
-
-Run the API / websocket server (default port from `server.ts`, override with `PORT`):
 
 ```
 npm start
@@ -74,8 +69,6 @@ src/
 ## Scripts (from package.json)
 
 - `dev` – Vite dev server
-- `start` – Runs `server.ts` via tsx
-- `start:3000`, – Convenience with PORT preset
 - `build` – Type check then bundle
 - `preview` – Preview built client
 - `prettier` - Prettier
