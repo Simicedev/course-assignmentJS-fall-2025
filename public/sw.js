@@ -1,17 +1,21 @@
-// Minimal service worker for offline-friendly SPA
-// Caches same-origin GET requests and provides a basic offline fallback for navigation.
+// Improved service worker to avoid serving a stale index.html that references
+// old hashed asset names after each deploy (a common cause of 404 on /assets/*).
+// Strategy:
+//  - Network-first for navigations (so new index.html arrives immediately)
+//  - Cache-first for other same-origin GET requests with a graceful fallback
+//  - Do NOT permanently cache index.html under an old hash reference
+//  - Bump CACHE_VERSION when you change SW behavior
 
-const CACHE_NAME = "my-pwa-shell-v3";
-const APP_SHELL = [
-  "/",
-  "/index.html",
-  "/manifest.json",
-];
+const CACHE_VERSION = "v4"; // increment to invalidate old caches
+const CACHE_NAME = `pwa-shell-${CACHE_VERSION}`;
+// Keep shell minimal; do not pre-cache index so we always get the latest HTML
+const APP_SHELL = ["/manifest.json"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_SHELL))
   );
+  self.skipWaiting();
 });
 
 self.addEventListener("activate", (event) => {
@@ -27,47 +31,66 @@ self.addEventListener("activate", (event) => {
   );
 });
 
+function isDevRequest(url) {
+  return (
+    url.pathname.startsWith("/@vite") ||
+    url.pathname.startsWith("/@id/") ||
+    url.pathname.startsWith("/src/")
+  );
+}
+
 self.addEventListener("fetch", (event) => {
   const req = event.request;
   const url = new URL(req.url);
 
-  // In development with Vite, avoid intercepting dev server/HMR requests
-  // If the request targets @vite client or JS modules under /src, let network handle it
-  if (
-    url.pathname.startsWith("/@vite") ||
-    url.pathname.startsWith("/@id/") ||
-    url.pathname.startsWith("/src/")
-  ) {
-    return; // don't call respondWith -> SW won't interfere
-  }
-
   // Only handle same-origin GET requests
-  if (req.method !== "GET" || url.origin !== self.location.origin) {
-    return;
-  }
+  if (req.method !== "GET" || url.origin !== self.location.origin) return;
+  // Skip dev/HMR like paths (mostly relevant locally)
+  if (isDevRequest(url)) return;
 
-  event.respondWith(
-    caches.match(req).then((cached) => {
-      if (cached) {
-        // console.log("Serving from cache:", req.url);
-        return cached;
-      }
-      // Network fallback with graceful offline handling
-      return fetch(req).catch(async () => {
-        // For navigations, return cached shell if available
-        if (req.mode === "navigate") {
+  // Network-first for navigations to always get the freshest index.html
+  if (req.mode === "navigate") {
+    event.respondWith(
+      (async () => {
+        try {
+          const networkResp = await fetch(req);
+          // Optionally: update a copy of index.html in cache for offline usage
+          const cache = await caches.open(CACHE_NAME);
+          cache.put("/index.html", networkResp.clone());
+          cache.put("/", networkResp.clone());
+          return networkResp;
+        } catch (err) {
+          // Offline fallback: previously cached index (if any)
           const cache = await caches.open(CACHE_NAME);
           return (
-            (await cache.match("/")) ||
             (await cache.match("/index.html")) ||
             new Response("Offline", { status: 503, statusText: "Offline" })
           );
         }
+      })()
+    );
+    return;
+  }
+
+  // Cache-first for other same-origin GET assets (CSS, JS, images)
+  event.respondWith(
+    (async () => {
+      const cache = await caches.open(CACHE_NAME);
+      const cached = await cache.match(req);
+      if (cached) return cached;
+      try {
+        const resp = await fetch(req);
+        // Only cache successful, basic (opaque is often cross-origin) responses
+        if (resp.status === 200 && resp.type === "basic") {
+          cache.put(req, resp.clone());
+        }
+        return resp;
+      } catch (err) {
         return new Response(null, {
           status: 504,
-          statusText: "Gateway Timeout",
+          statusText: "Gateway Timeout"
         });
-      });
-    })
+      }
+    })()
   );
 });
