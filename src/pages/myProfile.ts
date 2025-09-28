@@ -28,11 +28,11 @@ function headerHtml(profile: Profile) {
     "https://placehold.co/800x200";
   return `
     <header class="my-profile-header">
-      <img src="${banner}" alt="banner" style="width:100%;max-height:200px;object-fit:cover"/>
-      <div style="display:flex;gap:12px;align-items:center;margin-top:-32px">
+      <img src="${banner}" alt="banner" class="my-profile-banner"/>
+      <div class="my-profile-header-info">
         <img src="${avatar}" alt="${
           profile.name
-        }" width="96" height="96" style="border-radius:50%;border:3px solid #fff"/>
+        }" width="96" height="96" class="my-profile-avatar"/>
         <div>
           <h2>${profile.name}</h2>
           ${profile.bio ? `<p>${profile.bio}</p>` : ""}
