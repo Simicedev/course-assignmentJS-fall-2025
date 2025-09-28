@@ -4,6 +4,7 @@
 @import "./pagination.css";
 @import "./edit.css";
 @import "./myProfile.css";
+@import "./navbar.css";
 
 /* Modern minimal theme with light/dark support */
 :root {
