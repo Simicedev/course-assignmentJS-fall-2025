@@ -39,20 +39,24 @@ function renderNav() {
   if (nav) {
     const loggedIn = isAuthenticated();
     const name = getUserName();
+
     nav.innerHTML = `
-      <a href="/" data-link>Home</a>
-  <a href="/profiles" data-link>Profiles</a>
-  <a href="/me" data-link>My Profile</a>
-      ${
-        loggedIn
-          ? `<span style=\"margin-left:auto\" class=\"muted\">Logged in as ${
-              name ?? "User"
-            }</span>
-           <button id=\"logout-btn\" class=\"btn btn-secondary\" style=\"margin-left:8px\">Logout</button>`
-          : `<span style=\"margin-left:auto\"></span>
-           <a href=\"/login\" data-link>Login</a>
-           <a href=\"/register\" data-link>Register</a>`
-      }
+      <div class="c-nav-links">
+        <a href="/" data-link>Home</a>
+        <a href="/profiles" data-link>Profiles</a>
+        <a href="/me" data-link>My Profile</a>
+      </div> 
+
+      <div class="c-login-status">
+        ${
+          loggedIn
+            ? `<span  class="muted c-login-prompt">Logged in as ${name ?? "User"}</span>
+                <button id=\"logout-btn\" class=\"btn btn-secondary\" ">Logout</button>`
+            : `<span class="c-login-prompt"></span>
+                <a href=\"/login\" data-link>LogIn</a>
+                <a href=\"/register\" data-link>Register</a>`
+        }
+      </div>
     `;
 
     document.getElementById("logout-btn")?.addEventListener("click", () => {
