@@ -1,3 +1,5 @@
+@import "tailwindcss";
+
 @import "./singlePost.css";
 @import "./homePage.css";
 @import "./profiles.css";
@@ -5,8 +7,6 @@
 @import "./edit.css";
 @import "./myProfile.css";
 @import "./navbar.css";
-
-/* checking */
 
 /* Modern minimal theme with light/dark support */
 :root {
