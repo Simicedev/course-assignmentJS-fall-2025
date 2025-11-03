@@ -120,13 +120,15 @@ export async function renderPosts() {
       ? `<img src="${avatar}" alt="${name}" class="c-singlePost-avatar-img"/>`
       : "";
     return `
-      <div class="c-posts-card" ">
+      <div class="c-posts-card" data-post="${post.id}">
         <div>
           <a href="/profiles/${encodeURIComponent(
             name
           )}" data-link>${avatarImg} ${name}</a>
-          <h3><a href="/posts/${post.id}" data-link>${post.title}</a>
-          <small>#${post.id}</small></h3>
+          <h3>
+            <a href="/posts/${post.id}" data-link>${post.title}</a>
+            <small>#${post.id}</small>
+          </h3>
         </div>
         <div class="c-posts-media">
         ${

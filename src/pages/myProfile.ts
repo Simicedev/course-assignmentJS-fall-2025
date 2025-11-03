@@ -26,15 +26,16 @@ function headerHtml(profile: Profile) {
     (profile as any)?.banner?.url ||
     (profile as any)?.banner ||
     "https://placehold.co/800x200";
+
   return `
-    <header class="my-profile-header">
-      <img src="${banner}" alt="banner" class="my-profile-banner"/>
-      <div class="my-profile-header-info">
+    <section class="flex flex-col gap-1">
+      <img src="${banner}" alt="banner" class="w-full max-h-48 object-cover block rounded-t-2xl"/>
+      <div class="flex items-center gap-4 text-white text-shadow-2xs">
         <img src="${avatar}" alt="${
           profile.name
-        }" width="96" height="96" class="my-profile-avatar"/>
-        <div>
-          <h2>${profile.name}</h2>
+        }" width="96px" height="96px" class="max-w-24 h-24 rounded-full border-3 shadow-xs border-white object-cover"/>
+        <div class="flex flex-col">
+          <h2 class="text-lg font-bold">${profile.name}</h2>
           ${profile.bio ? `<p>${profile.bio}</p>` : ""}
           <small>
             Posts: ${profile._count?.posts ?? 0} · Followers: ${
@@ -43,7 +44,7 @@ function headerHtml(profile: Profile) {
           </small>
         </div>
       </div>
-    </header>
+    </section>
   `;
 }
 
@@ -65,21 +66,24 @@ function composerHtml() {
 function postCardHtml(post: PostModel) {
   const media = normalizeMedia((post as any).media);
   return `
-    <article class="c-posts-card" data-post="${post.id}">
+    <article class="flex flex-col max-w-[400px] gap-2 p-3 border rounded-2xl border-gray-100" data-post="${post.id}">
       <div>
-        <h3>${post.title} <small>#${post.id}</small></h3>
+        <h3>
+          <a href="/posts/${post.id}" data-link>${post.title}</a>
+          <small>#${post.id}</small>
+        </h3>
       </div>
-      <div class="c-posts-media">
+      <div class="flex justify-center items-center w-full">
         ${
           media
-            ? `<img src="${media.url}" alt="${media.alt}" class="c-posts-img"/>`
+            ? `<img src="${media.url}" alt="${media.alt}" class="flex w-full object-cover"/>`
             : ""
         }
       </div>
-      <div class="c-posts-body">${post.body ? `<p>${post.body}</p>` : ""}</div>
-      <div class="c-posts-actions">
-        <button data-delete="${post.id}">Delete</button>
-        <a href="/edit/${post.id}" data-link><button data-edit="${post.id}">Edit</button></a>
+      <div class="flex gap-2 justify-center items-center flex-wrap">${post.body ? `<p>${post.body}</p>` : ""}</div>
+      <div class="flex gap-2 justify-center items-center flex-wrap">
+        <button data-delete="${post.id}" class="bg-red-500 text-white rounded px-3 py-2 font-semibold cursor-pointer hover:opacity-100 opacity-80">Delete</button>
+        <a href="/edit/${post.id}" data-link><button data-edit="${post.id}" class="bg-blue-500 text-white rounded px-3 py-2 font-semibold cursor-pointer hover:opacity-100 opacity-70">Edit</button></a>
       </div>
     </article>
   `;
@@ -121,7 +125,7 @@ export async function renderMyProfile() {
     const header = createHTML(headerHtml(profile));
     const composer = createHTML(composerHtml());
     const list = document.createElement("div");
-    list.className = "my-profile-posts c-posts-container";
+    list.className = "c-posts-container";
     posts.forEach((p: any) => {
       const item = createHTML(postCardHtml(p as PostModel));
       if (item) list.appendChild(item);
