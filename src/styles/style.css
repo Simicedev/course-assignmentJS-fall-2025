@@ -49,6 +49,13 @@ body {
   height: 100%;
 }
 
+ul,
+li {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
 img {
   width: 100%;
 }
@@ -85,32 +92,122 @@ body {
 }
 
 /* Layout */
-#js-primary-nav {
-  position: sticky;
+
+.l-header {
   top: 0;
-  z-index: 10;
+  border-bottom: 1px solid var(--border);
   backdrop-filter: saturate(180%) blur(10px);
   background: color-mix(in oklab, var(--panel), transparent 20%);
-  border-bottom: 1px solid var(--border);
+  position: fixed;
+  width: 100%;
+  z-index: 200;
 }
 
-nav#js-primary-nav a {
+.c-navbar {
+  display: flex;
+  min-height: 70px;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 24px;
+}
+
+.c-navbar a {
   color: var(--text);
-  text-decoration: none;
   padding: 10px 14px;
   border-radius: 8px;
+  text-decoration: none;
   transition:
     background 160ms ease,
     color 160ms ease;
 }
-nav#js-primary-nav a:hover {
+
+.c-navbar a:hover {
   background: color-mix(in oklab, var(--primary), transparent 82%);
+}
+
+.c-nav-menu {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2rem;
+}
+
+.c-nav-link {
+  transition: 0.3s ease;
+}
+
+.c-nav-link:hover {
+  color: var(--btn-color-hover);
+}
+
+.c-hamburger {
+  display: none;
+}
+
+.c-bar {
+  display: block;
+  width: 25px;
+  height: 3px;
+  margin: 5px auto;
+  transition: all 0.3s ease-in-out;
+  background-color: white;
+}
+
+@media only screen and (width < 600px) {
+  .c-nav-right {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    justify-content: space-between;
+    flex-direction: row;
+    gap: 1rem;
+  }
+
+  .c-hamburger {
+    display: block;
+    cursor: pointer;
+  }
+
+  .c-hamburger.active .c-bar:nth-child(2) {
+    opacity: 0%;
+  }
+
+  .c-hamburger.active .c-bar:nth-child(1) {
+    transform: translateY(8px) rotate(45deg);
+  }
+
+  .c-hamburger.active .c-bar:nth-child(3) {
+    transform: translateY(-8px) rotate(-45deg);
+  }
+
+  .c-nav-menu {
+    position: fixed;
+    right: -100%;
+    top: 70px;
+    gap: 0;
+    flex-direction: column;
+    background: color-mix(in oklab, var(--panel), transparent 5%);
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: saturate(180%) blur(10px);
+    width: 100%;
+    text-align: center;
+    transition: 0.6s;
+  }
+
+  .c-nav-item {
+    padding: 15px 0px;
+    width: 100%;
+  }
+
+  .c-nav-menu.active {
+    right: 0px;
+  }
 }
 
 main#app-content {
   max-width: 1000px;
-  margin: 24px auto;
-  padding: 0 16px;
+  margin: 71px auto;
+  padding: 10px 16px;
 }
 
 h1,

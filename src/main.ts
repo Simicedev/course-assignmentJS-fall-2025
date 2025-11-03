@@ -41,23 +41,51 @@ function renderNav() {
     const name = getUserName();
 
     nav.innerHTML = `
-      <div class="c-nav-links">
-        <a href="/" data-link>Home</a>
-        <a href="/profiles" data-link>Profiles</a>
-        <a href="/me" data-link>My Profile</a>
-      </div> 
+    <nav class="c-navbar">
+      <ul class="c-nav-menu" id="js-nav-menu">
+          <li role="link" aria-current="page" class="c-nav-item"><a href="/" data-link>Home</a></li>
+          <li role="link" aria-current="page" class="c-nav-item"><a href="/profiles" data-link>Profiles</a></li>
+          <li role="link" aria-current="page" class="c-nav-item"><a href="/me" data-link>My Profile</a></li>
+      </ul>
 
-      <div class="c-login-status">
-        ${
-          loggedIn
-            ? `<span  class="muted c-login-prompt">Logged in as ${name ?? "User"}</span>
-                <button id=\"logout-btn\" class=\"btn btn-secondary\" ">Logout</button>`
-            : `<span class="c-login-prompt"></span>
-                <a href=\"/login\" data-link>LogIn</a>
-                <a href=\"/register\" data-link>Register</a>`
-        }
-      </div>
+      <div class="c-nav-right">
+          <div class="c-login-status">
+            ${
+              loggedIn
+                ? `<span  class="muted c-login-prompt">Logged in as ${name ?? "User"}</span>
+                    <button id=\"logout-btn\" class=\"btn btn-secondary\" ">Logout</button>`
+                : `<span class="c-login-prompt"></span>
+                    <a href=\"/login\" data-link>LogIn</a>
+                    <a href=\"/register\" data-link>Register</a>`
+            }
+          </div>
+          <div class="c-nav-toggle">
+            <div class="c-hamburger" id="js-hamburger">
+              <span class="c-bar"></span>
+              <span class="c-bar"></span>
+              <span class="c-bar"></span>
+            </div>
+          </div>
+        </div>
+    </nav>
     `;
+
+    const hamburgerEl = document.querySelector("#js-hamburger");
+    const navMenuEl = document.querySelector("#js-nav-menu");
+
+    if (hamburgerEl && navMenuEl) {
+      hamburgerEl.addEventListener("click", () => {
+        hamburgerEl.classList.toggle("active");
+        navMenuEl.classList.toggle("active");
+      });
+
+      document.querySelectorAll(".c-nav-link").forEach((n) =>
+        n.addEventListener("click", () => {
+          hamburgerEl.classList.remove("active");
+          navMenuEl.classList.remove("active");
+        })
+      );
+    }
 
     document.getElementById("logout-btn")?.addEventListener("click", () => {
       clearAuth();
