@@ -246,7 +246,7 @@ p {
 }
 
 /* Buttons */
-button,
+/* button,
 .btn {
   appearance: none;
   border: 1px solid color-mix(in oklab, var(--primary), black 10%);
@@ -284,10 +284,10 @@ button:active {
 .btn-success {
   border-color: color-mix(in oklab, var(--success), black 10%);
   background: color-mix(in oklab, var(--success), transparent 20%);
-}
+} */
 
 /* Forms */
-form {
+/* form {
   background: var(--panel);
   border: 1px solid var(--border);
   border-radius: var(--radius);
@@ -318,7 +318,7 @@ textarea:focus,
 select:focus {
   border-color: color-mix(in oklab, var(--primary), white 20%);
   box-shadow: 0 0 0 4px color-mix(in oklab, var(--primary), transparent 85%);
-}
+} */
 
 /* Utilities */
 .row {

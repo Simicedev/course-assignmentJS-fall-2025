@@ -1,6 +1,7 @@
 import { loginUser } from "../services/authApi";
 import { setAuth, emitAuthChanged } from "../storage/authentication";
 
+
 const outletId = "app-content";
 
 export function renderLogin() {
