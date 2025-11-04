@@ -7,18 +7,26 @@ export function renderRegister() {
   const root = document.getElementById(outletId);
   if (!root) return;
   root.innerHTML = `
-	<form class="flex flex-col gap-2 sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl mx-auto bg-blue-50 p-6 rounded-2xl shadow text-black border-2" id="register-form ">
-    <h1 class="text-2xl font-bold mb-4 border-b-2">Register</h1>
+	<form class="flex flex-col gap-2 sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl mx-auto bg-(--panel) backdrop-blur-md border border-blue-500 p-6 rounded-2xl shadow-md text-white" id="register-form">
+    <h1 class="flex justify-center text-xl font-bold mb-4">Register</h1>
     <div class="mb-4">
-		  <label for="username" class="flex flex-col">Username <input class="border rounded-2xl bg-gray-100" name="name" required pattern="[A-Za-z0-9_]+" title="Letters, numbers and underscore only"></label><br>
+		  <label for="username" class="flex flex-col">Username <input class="border rounded-2xl p-1 text-black bg-gray-100" name="name" required pattern="[A-Za-z0-9_]+" title="Letters, numbers and underscore only"></label><br>
 		</div>
-    <label class="flex flex-col">Email <input class="border rounded-2xl bg-gray-100" name="email" type="email" required></label><br>
-		<label class="flex flex-col">Password <input class="border rounded-2xl bg-gray-100" name="password" type="password" minlength="8" required></label><br>
-		<label class="flex flex-col">Avatar URL <input class="border rounded-2xl bg-gray-100" name="avatar" type="url" placeholder="https://..."></label><br>
-		<label class="flex flex-col">Banner URL <input class="border rounded-2xl bg-gray-100"name="banner" type="url" placeholder="https://..."></label><br>
-		<div class="flex mb-3">
+    <div class="mb-4">
+    <label class="flex flex-col">Email <input class="border rounded-2xl p-1 text-black bg-gray-100" name="email" type="email" required></label><br>
+    </div>
+    <div class="mb-4">
+		<label class="flex flex-col">Password <input class="border rounded-2xl p-1 text-black bg-gray-100" name="password" type="password" minlength="8" required></label><br>
+		</div>
+    <div class="mb-4">
+    <label class="flex flex-col">Avatar URL <input class="border rounded-2xl p-1 text-black bg-gray-100" name="avatar" type="url" placeholder="https://..."></label><br>
+    </div>
+    <div class="mb-4">
+    <label class="flex flex-col">Banner URL <input class="border rounded-2xl p-1 text-black bg-gray-100" name="banner" type="url" placeholder="https://..."></label><br>
+    </div>
+    <div class="flex mb-3">
       <input checked id="checkbox-2" type="checkbox" value="" class="w-auto h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" >
-      <label for="checkbox-2" class="ms-2 text-sm font-medium text-black">I agree to the <a href="#" class="text-blue-600 hover:underline dark:text-blue-500">terms and conditions</a>.</label>
+      <label for="checkbox-2" class="ms-2 text-sm font-medium text-white">I agree to the <a href="#" class="text-blue-600 hover:underline dark:text-blue-500">terms and conditions</a>.</label>
     </div>
     <button class="bg-blue-600 hover:bg-blue-700 hover:cursor-pointer text-white font-bold py-2 px-4 rounded-2xl" type="submit">Create account</button>
 

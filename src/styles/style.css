@@ -78,12 +78,10 @@ body {
     "Segoe UI Emoji";
   background:
     radial-gradient(
-      1200px 600px at 0% -10%,
       rgba(79, 140, 255, 0.2),
       transparent 50%
     ),
     radial-gradient(
-      1000px 500px at 100% 110%,
       rgba(61, 220, 151, 0.15),
       transparent 50%
     ),
@@ -211,12 +209,6 @@ main#app-content {
   padding: 10px 16px;
 }
 
-h1,
-h2,
-h3 {
-  font-size: 16px;
-  padding: 0.5rem 0;
-}
 p {
   margin: 0;
   color: var(--text);
