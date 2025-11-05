@@ -186,13 +186,12 @@ function buildProfilesGrid(profiles: Profile[]): HTMLElement {
   return container;
 }
 
-// --- Basic username search (client-side, case-insensitive) ---
 function searchBarHtml(): string {
   return `
-    <div class="c-profiles-basic-search" id="profiles-search-bar">
-      <label for="profiles-search-input" class="c-profiles-basic-search-label">Search username:</label>
-      <input id="profiles-search-input" class="c-profiles-basic-search-input" type="text" placeholder="Type full username and press enter" />
-      <button type="button" id="profiles-search-clear" class="btn btn-secondary" hidden>Clear</button>
+    <div class="flex flex-wrap items-center gap-2 mb-4 bg-[#131722] border border-white rounded-2xl p-3" id="profiles-search-bar">
+      <label for="profiles-search-input" class="text-xs muted font-semibold">Search username:</label>
+      <input id="profiles-search-input" class="flex-1 min-w-[220px] p-2 border border-white rounded-lg bg-[#1a1f2e] focus:outline-none focus:border-blue-700 focus:shadow-2xs focus:shadow-blue-700" type="text" placeholder="Type full username and press enter" />
+      <button type="button" id="profiles-search-clear" class="cursor-pointer p-3 rounded-2xl bg-blue-500 text-xs  font-semibold hover:bg-blue-600" hidden>Clear</button>
     </div>
     <div id="profiles-search-status" class="c-profiles-search-status" aria-live="polite"></div>
   `;
@@ -231,8 +230,7 @@ export async function renderProfilesList() {
     const statusEl = document.getElementById(
       "profiles-search-status"
     ) as HTMLElement | null;
-    statusEl &&
-      (statusEl.textContent = `Type full username`);
+    statusEl && (statusEl.textContent = `Type full username`);
 
     function showLocalFilter(val: string) {
       const currentGrid = root!.querySelector(".c-profiles-grid");

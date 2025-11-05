@@ -120,13 +120,15 @@ export async function renderPosts() {
       ? `<img src="${avatar}" alt="${name}" class="c-singlePost-avatar-img"/>`
       : "";
     return `
-      <div class="c-posts-card" ">
+      <div class="c-posts-card" data-post="${post.id}">
         <div>
           <a href="/profiles/${encodeURIComponent(
             name
           )}" data-link>${avatarImg} ${name}</a>
-          <h3><a href="/posts/${post.id}" data-link>${post.title}</a>
-          <small>#${post.id}</small></h3>
+          <h3>
+            <a href="/posts/${post.id}" data-link>${post.title}</a>
+            <small>#${post.id}</small>
+          </h3>
         </div>
         <div class="c-posts-media">
         ${
@@ -162,12 +164,12 @@ export async function renderPosts() {
 
   function searchBarHtml(): string {
     return `
-      <section class="c-posts-search-header">
-        <h1>Posts</h1>
-        <div class="c-posts-search-bar" id="posts-search-bar">
-          <label for="posts-search-input">Search posts:</label>
-          <input id="posts-search-input" type="text" placeholder="Type to search posts…" />
-          <button type="button" id="posts-search-clear" hidden>Clear</button>
+      <section class="flex flex-col gap-2 mb-4">
+        <h1 class="text-2xl font-bold">Posts</h1>
+        <div class="flex flex-wrap items-center gap-2 mb-4 bg-[#131722] border border-white rounded-2xl p-3" id="posts-search-bar">
+          <label for="posts-search-input" class="text-xs muted font-semibold">Search posts:</label>
+          <input id="posts-search-input" class="flex-1 min-w-[220px] p-2 border border-white rounded-lg bg-[#1a1f2e] focus:outline-none focus:border-blue-700 focus:shadow-2xs focus:shadow-blue-700" type="text" placeholder="Type to search posts…" />
+          <button type="button" id="posts-search-clear" class="cursor-pointer p-3 rounded-2xl bg-blue-500 text-xs  font-semibold hover:bg-blue-600" hidden>Clear</button>
         </div>
         <div id="posts-search-status" class="c-posts-search-status" aria-live="polite"></div>
       </section>`;

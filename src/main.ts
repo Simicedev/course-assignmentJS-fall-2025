@@ -49,12 +49,12 @@ function renderNav() {
       </ul>
 
       <div class="c-nav-right">
-          <div class="c-login-status">
+          <div class="flex gap-2 items-center">
             ${
               loggedIn
-                ? `<span  class="muted c-login-prompt">Logged in as ${name ?? "User"}</span>
-                    <button id=\"logout-btn\" class=\"btn btn-secondary\" ">Logout</button>`
-                : `<span class="c-login-prompt"></span>
+                ? `<span class="muted flex items-center gap-1">Logged in as <span class="font-bold text-white"> ${name ?? "User"}</span></span>
+                    <button id=\"logout-btn\" class=\"bg-red-500 text-white rounded px-3 py-2 font-semibold cursor-pointer hover:opacity-100 opacity-70\">Logout</button>`
+                : `<span class="flex items-center"></span>
                     <a href=\"/login\" data-link>LogIn</a>
                     <a href=\"/register\" data-link>Register</a>`
             }
