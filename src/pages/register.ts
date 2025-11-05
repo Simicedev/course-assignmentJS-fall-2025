@@ -26,7 +26,7 @@ export function renderRegister() {
         <label class="flex flex-col">Banner URL <input class="border rounded-2xl p-1 text-black bg-gray-100" name="banner" type="url" placeholder="https://..."></label><br>
       </div>
       <div class="flex mb-3">
-        <input checked id="checkbox-2" type="checkbox" value="" class="w-auto h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" >
+        <input id="checkbox-2" type="checkbox" required value="" class="w-auto h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" >
         <label for="checkbox-2" class="ms-2 text-sm font-medium text-white">I agree to the <a href="#" class="text-blue-600 hover:underline dark:text-blue-500">terms and conditions</a>.</label>
       </div>
       <button class="bg-blue-600 hover:bg-blue-700 hover:cursor-pointer text-white font-bold py-2 px-4 rounded-2xl" type="submit">Create account</button>
