@@ -50,14 +50,16 @@ function headerHtml(profile: Profile) {
 
 function composerHtml() {
   return `
-    <section class="my-profile-composer">
-      <h3>Create a new post</h3>
-      <form id="my-post-new">
-        <input name="title" placeholder="Title" required>
-        <input name="media" placeholder="Image URL (optional)">
-        <input name="tags" placeholder="tags,comma,separated">
-        <textarea name="body" placeholder="Body"></textarea>
-        <button type="submit">Create</button>
+    <section class="flex flex-col justify-center items-center mx-auto">
+      <h3 class="text-lg font-bold">Create a new post</h3>
+      <form id="my-post-new" class="flex flex-col gap-2 w-full max-w-2xl mx-auto  bg-(--panel) backdrop-blur-md border border-blue-500 p-6 rounded-2xl shadow-md text-white" id="login-form">
+        <input class="p-2 rounded border border-gray-300" type="text" name="title" placeholder="Title" required>
+        <input class="p-2 rounded border border-gray-300" type="url" name="media" placeholder="Image URL (optional)">
+        <input class="p-2 rounded border border-gray-300" type="text" name="tags" placeholder="tags,comma,separated">
+        <textarea class="p-2 rounded border border-gray-300 min-h-48" name="body" type="text" placeholder="Body"></textarea>
+        <div class="flex justify-center items-center w-full">
+          <button class="bg-blue-500 text-white flex rounded px-3 py-2 font-semibold cursor-pointer hover:opacity-100 min-w-4/12 opacity-70 justify-center" type="submit">Create</button>
+        </div>
       </form>
     </section>
   `;

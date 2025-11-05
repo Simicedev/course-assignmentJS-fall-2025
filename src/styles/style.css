@@ -5,7 +5,6 @@
 @import "./profiles.css";
 @import "./pagination.css";
 @import "./edit.css";
-@import "./navbar.css";
 
 /* Modern minimal theme with light/dark support */
 :root {
@@ -77,15 +76,8 @@ body {
     "Apple Color Emoji",
     "Segoe UI Emoji";
   background:
-    radial-gradient(
-      rgba(79, 140, 255, 0.2),
-      transparent 50%
-    ),
-    radial-gradient(
-      rgba(61, 220, 151, 0.15),
-      transparent 50%
-    ),
-    var(--bg);
+    radial-gradient(rgba(79, 140, 255, 0.2), transparent 50%),
+    radial-gradient(rgba(61, 220, 151, 0.15), transparent 50%), var(--bg);
   color: var(--text);
   font-size: 16px;
 }
@@ -365,37 +357,4 @@ a {
 }
 a:hover {
   color: var(--primary-600);
-}
-
-/* Basic profiles username search */
-.c-profiles-basic-search {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 16px;
-  background: var(--panel);
-  padding: 12px 14px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-}
-.c-profiles-basic-search-label {
-  font-size: 0.9rem;
-  color: var(--muted);
-  font-weight: 600;
-}
-.c-profiles-basic-search-input {
-  flex: 1;
-  min-width: 220px;
-  padding: 8px 10px;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background: var(--panel-2);
-  color: var(--text);
-  font: inherit;
-}
-.c-profiles-basic-search-input:focus {
-  outline: none;
-  border-color: color-mix(in oklab, var(--primary), white 20%);
-  box-shadow: 0 0 0 3px color-mix(in oklab, var(--primary), transparent 85%);
 }
