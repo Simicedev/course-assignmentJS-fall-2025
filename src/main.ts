@@ -1,4 +1,4 @@
-import "./styles/style.css";
+import "./styles/tailwind.css";
 import { renderProfilesList, renderProfileDetail } from "./pages/profile";
 import { renderLogin } from "./pages/login";
 import { renderRegister } from "./pages/register";

@@ -1,12 +1,8 @@
-@import "./singlePost.css";
-@import "./homePage.css";
 @import "./profiles.css";
-@import "./pagination.css";
 @import "./edit.css";
 @import "./myProfile.css";
 @import "./navbar.css";
 
-/* Modern minimal theme with light/dark support */
 :root {
   --bg: #0b0e14;
   --panel: #131722;

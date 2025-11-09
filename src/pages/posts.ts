@@ -116,45 +116,38 @@ export async function renderPosts() {
     const comments = post._count?.comments ?? 0;
     const reactions = post._count?.reactions ?? 0;
     const { name, avatar } = getAuthor(post);
-    const avatarImg = avatar
-      ? `<img src="${avatar}" alt="${name}" class="c-singlePost-avatar-img"/>`
-      : "";
+    // avatarImg is now inlined in the template below
     return `
-      <div class="c-posts-card" ">
+      <div class="flex flex-col w-full max-w-sm sm:max-w-md md:max-w-lg bg-white dark:bg-gray-900 rounded-xl shadow-md p-3 sm:p-4 mb-6 border border-gray-200 dark:border-gray-700 cursor-pointer transition hover:shadow-lg">
         <div>
-          <a href="/profiles/${encodeURIComponent(
-            name
-          )}" data-link>${avatarImg} ${name}</a>
-          <h3><a href="/posts/${post.id}" data-link>${post.title}</a>
-          <small>#${post.id}</small></h3>
+          <a href="/profiles/${encodeURIComponent(name)}" data-link class="flex items-center gap-2 text-gray-800 dark:text-gray-200 font-semibold mb-1">
+            ${avatar ? `<img src='${avatar}' alt='${name}' class='w-7 h-7 rounded-full'/>` : ''} ${name}
+          </a>
+          <h3 class="text-lg font-bold text-gray-900 dark:text-gray-100"><a href="/posts/${post.id}" data-link>${post.title}</a>
+          <small class="ml-2 text-gray-400">#${post.id}</small></h3>
         </div>
-        <div class="c-posts-media">
-        ${
-          media
-            ? `<img src="${media.url}" alt="${media.alt}" class="c-posts-img"/>`
-            : ""
-        }
+        <div class="flex justify-center items-center my-2">
+        ${media ? `<img src="${media.url}" alt="${media.alt}" class="w-full max-w-xs sm:max-w-md md:max-w-lg rounded-lg object-cover"/>` : ""}
         </div>
-        <div class="c-posts-body">
-        ${post.body ? `<p>${post.body}</p>` : ""}
+        <div class="mb-2">
+        ${post.body ? `<p class="text-gray-700 dark:text-gray-200">${post.body}</p>` : ""}
         </div>
 
-        <div class="c-posts-meta">
+        <div class="flex flex-col sm:flex-row justify-evenly items-center text-sm text-gray-600 dark:text-gray-300 mb-2 gap-2 sm:gap-0">
           <div>
-            <p> <small>Reactions: ${reactions}</small></p>
-            <p class="c-posts-meta-info"><small>Comments: ${comments} </small></p>
+            <p><small>Reactions: ${reactions}</small></p>
+            <p class="flex items-center gap-2"><small>Comments: ${comments}</small></p>
           </div>
-          <div class="c-posts-reactions">
-            <button data-react="👍" data-id="${post.id}">👍</button>
-            <button data-react="❤️" data-id="${post.id}">❤️</button>
+          <div class="flex gap-2">
+            <button data-react="👍" data-id="${post.id}" class="px-2 py-1 rounded bg-gray-100 dark:bg-gray-800 hover:bg-blue-100 dark:hover:bg-blue-900">👍</button>
+            <button data-react="❤️" data-id="${post.id}" class="px-2 py-1 rounded bg-gray-100 dark:bg-gray-800 hover:bg-pink-100 dark:hover:bg-pink-900">❤️</button>
           </div>
         </div>
-        <div class="c-posts-actions">
-          
-          <form data-comment="${post.id}" style="display:inline-flex;gap:4px">
-            <input name="body" placeholder="Comment"> <button>Add</button>
+        <div class="flex flex-col gap-2 items-center">
+          <form data-comment="${post.id}" class="flex gap-2 w-full">
+            <input name="body" placeholder="Comment" class="flex-1 rounded border border-gray-300 dark:border-gray-700 p-2 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100" />
+            <button class="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded">Add</button>
           </form>
-          
         </div>
       </div>
     `;

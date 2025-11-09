@@ -57,21 +57,17 @@ function singlePostDisplay(post: PostModel): string {
   const avatarImg = avatar
     ? `<img src="${avatar}" alt="${name}" class="c-singlePost-avatar-img"/>`
     : "";
-  const mediaImg = media
-    ? `<img src="${media.url}" alt="${media.alt}" class="c-singlePost-media"/>`
-    : "";
+  // mediaImg is now inlined in the template below
   return `
-    <article class="single-post-container">
-      <a href="/" data-link>← Back</a>
-      <h3>${post.title}</h3>
-      ${mediaImg}
-      <p>${post.body}</p>
-      <footer class="c-singlePost-footer">
-        <small>By ${avatarImg}<a href="/profiles/${encodeURIComponent(
-    name
-  )}" data-link>${name}</a></small>
-        <p>Post ID: #${post.id}</p>
-        <p>Created at: ${post.created?.slice(0, 10)}</p>
+  <article class="flex flex-col w-full max-w-2xl mx-auto mt-6 sm:mt-10 px-2 sm:px-6 py-6 bg-white dark:bg-gray-900 rounded-lg shadow-lg">
+      <a href="/" data-link class="text-blue-600 hover:underline mb-2">← Back</a>
+      <h3 class="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">${post.title}</h3>
+  ${media ? `<div class='flex justify-center'><img src="${media.url}" alt="${media.alt}" class="w-full max-w-xs sm:max-w-lg rounded-lg my-2"/></div>` : ''}
+      <p class="text-gray-800 dark:text-gray-200 mb-4">${post.body}</p>
+      <footer class="flex flex-col sm:flex-row justify-evenly items-center border-t border-gray-200 dark:border-gray-700 pt-4 mt-4 gap-2 text-sm text-gray-600 dark:text-gray-300">
+        <span class="flex items-center">By ${avatarImg ? `<img src='${avatar}' alt='${name}' class='w-7 h-7 rounded-full mr-2'/>` : ''}<a href="/profiles/${encodeURIComponent(name)}" data-link class="text-blue-600 hover:underline">${name}</a></span>
+        <span>Post ID: #${post.id}</span>
+        <span>Created at: ${post.created?.slice(0, 10)}</span>
       </footer>
     </article>
   `;
